@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native'
+import { Platform, StyleSheet, Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function HomeScreen() {
@@ -18,6 +18,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: 'SpaceMono-Regular',
+    fontFamily: Platform.select({
+      android: 'CourierPrime_400Regular',
+      ios: 'CourierPrime-Regular',
+    }),
   },
 })
