@@ -7,7 +7,7 @@ const StyledText = styled(Text)
 
 export default function HomeScreen() {
   return (
-    <StyledSafeAreaView className="items-center justify-center flex-1">
+    <StyledSafeAreaView className="flex-1 items-center justify-center">
       <StyledText className="font-cp text-2xl">Memento</StyledText>
     </StyledSafeAreaView>
   )
