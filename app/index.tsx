@@ -50,10 +50,8 @@ export default function HomeScreen() {
     resolver: zodResolver(entrySchema),
   })
 
-  const [selection, setSelection] = useState<Selection | null>(null)
-  const isMediaPickerShown = selection
-    ? selection.end - selection.start > 0
-    : false
+  const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
+  const isMediaPickerShown = selection.end - selection.start > 0
 
   const opacity = useSharedValue(0)
   useEffect(() => {
@@ -71,7 +69,7 @@ export default function HomeScreen() {
     <TouchableWithoutFeedback
       onPress={() => {
         Keyboard.dismiss()
-        setSelection(null)
+        setSelection({ start: 0, end: 0 })
       }}
       accessible={false}
     >
@@ -93,6 +91,7 @@ export default function HomeScreen() {
                   const { start, end } = event.nativeEvent.selection
                   setSelection({ start, end })
                 }}
+                selection={selection!}
               />
             )}
           />
