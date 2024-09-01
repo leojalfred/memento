@@ -40,14 +40,20 @@ function MediaPicker() {
   )
 }
 
+interface Selection {
+  start: number
+  end: number
+}
+
 export default function HomeScreen() {
   const { control } = useForm<z.infer<typeof entrySchema>>({
     resolver: zodResolver(entrySchema),
   })
 
-  const [selectionStart, setSelectionStart] = useState(0)
-  const [selectionEnd, setSelectionEnd] = useState(0)
-  const isMediaPickerShown = selectionEnd - selectionStart > 0
+  const [selection, setSelection] = useState<Selection | null>(null)
+  const isMediaPickerShown = selection
+    ? selection.end - selection.start > 0
+    : false
 
   const opacity = useSharedValue(0)
   useEffect(() => {
@@ -62,7 +68,13 @@ export default function HomeScreen() {
   })
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss()
+        setSelection(null)
+      }}
+      accessible={false}
+    >
       <SafeAreaView style={{ flex: 1 }}>
         <View className="p-4">
           <Controller
@@ -79,8 +91,7 @@ export default function HomeScreen() {
                 onChangeText={onChange}
                 onSelectionChange={(event) => {
                   const { start, end } = event.nativeEvent.selection
-                  setSelectionStart(start)
-                  setSelectionEnd(end)
+                  setSelection({ start, end })
                 }}
               />
             )}
