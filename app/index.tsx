@@ -2,7 +2,13 @@ import { Feather } from '@expo/vector-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { TextInput, TouchableOpacity, View } from 'react-native'
+import {
+  Keyboard,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -56,32 +62,34 @@ export default function HomeScreen() {
   })
 
   return (
-    <SafeAreaView>
-      <View className="p-4">
-        <Controller
-          name="text"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              className="mb-4 font-cp"
-              autoFocus={true}
-              multiline={true}
-              placeholder="Start writing..."
-              selectionColor={colors.gray[500]}
-              value={value}
-              onChangeText={onChange}
-              onSelectionChange={(event) => {
-                const { start, end } = event.nativeEvent.selection
-                setSelectionStart(start)
-                setSelectionEnd(end)
-              }}
-            />
-          )}
-        />
-        <Animated.View style={animatedStyle}>
-          <MediaPicker />
-        </Animated.View>
-      </View>
-    </SafeAreaView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View className="p-4">
+          <Controller
+            name="text"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                className="mb-4 font-cp"
+                autoFocus={true}
+                multiline={true}
+                placeholder="Start writing..."
+                selectionColor={colors.gray[500]}
+                value={value}
+                onChangeText={onChange}
+                onSelectionChange={(event) => {
+                  const { start, end } = event.nativeEvent.selection
+                  setSelectionStart(start)
+                  setSelectionEnd(end)
+                }}
+              />
+            )}
+          />
+          <Animated.View style={animatedStyle}>
+            <MediaPicker />
+          </Animated.View>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   )
 }
