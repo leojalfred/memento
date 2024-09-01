@@ -1,14 +1,17 @@
 import { styled } from 'nativewind'
-import { Text } from 'react-native'
+import { TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const StyledSafeAreaView = styled(SafeAreaView)
-const StyledText = styled(Text)
+const StyledTextInput = styled(TextInput)
 
 export default function HomeScreen() {
   return (
-    <StyledSafeAreaView className="flex-1 items-center justify-center">
-      <StyledText className="font-cp text-2xl">Memento</StyledText>
-    </StyledSafeAreaView>
+    <SafeAreaView>
+      <StyledTextInput
+        className="mx-4 font-cp"
+        placeholder="Start writing..."
+        multiline={true}
+      />
+    </SafeAreaView>
   )
 }
