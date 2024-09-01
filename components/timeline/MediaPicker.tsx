@@ -48,7 +48,7 @@ export default function MediaPicker() {
         <Divider />
         <IconButton icon="mic" />
       </View>
-      <Animated.View style={[animatedStyle]}>
+      <Animated.View style={animatedStyle}>
         <ActivityIndicator size="small" color="#374151" />
       </Animated.View>
     </View>
