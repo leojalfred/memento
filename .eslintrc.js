@@ -5,4 +5,7 @@ module.exports = {
   rules: {
     'prettier/prettier': 'warn',
   },
+  globals: {
+    __dirname: true,
+  },
 }
