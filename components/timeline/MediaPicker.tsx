@@ -5,21 +5,27 @@ import { useState } from 'react'
 import { View } from 'react-native'
 
 export default function MediaPicker() {
-  const [image, setImage] = useState<string | null>(null)
+  const [media, setMedia] = useState<string | null>(null)
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync()
+  const pickMedia = async (type: 'image' | 'video') => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes:
+        type === 'image'
+          ? ImagePicker.MediaTypeOptions.Images
+          : ImagePicker.MediaTypeOptions.Videos,
+    })
+
     if (!result.canceled) {
-      setImage(result.assets[0].uri)
-      console.log(image)
+      setMedia(result.assets[0].uri)
+      console.log(result.assets[0].uri)
     }
   }
 
   return (
     <View className="flex-row self-start rounded-full border border-gray-700">
-      <IconButton icon="image" onPress={pickImage} />
+      <IconButton icon="image" onPress={() => pickMedia('image')} />
       <Divider />
-      <IconButton icon="video" />
+      <IconButton icon="video" onPress={() => pickMedia('video')} />
       <Divider />
       <IconButton icon="mic" />
     </View>
