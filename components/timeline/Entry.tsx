@@ -1,5 +1,5 @@
 import type { Selection } from '@/app'
-import MediaPicker from '@/components/MediaPicker'
+import MediaPicker from '@/components/timeline/MediaPicker'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -51,6 +51,7 @@ export default function Entry({ selection, setSelection }: EntryProps) {
             autoFocus={true}
             multiline={true}
             placeholder="Start writing..."
+            selection={selection}
             selectionColor={colors.gray[500]}
             value={value}
             onChangeText={onChange}
@@ -58,7 +59,6 @@ export default function Entry({ selection, setSelection }: EntryProps) {
               const { start, end } = event.nativeEvent.selection
               setSelection({ start, end })
             }}
-            selection={selection!}
           />
         )}
       />

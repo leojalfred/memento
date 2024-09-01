@@ -1,4 +1,4 @@
-import Entry from '@/components/Entry'
+import Entry from '@/components/timeline/Entry'
 import { useState } from 'react'
 import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
