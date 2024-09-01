@@ -20,27 +20,15 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "studio.swivel.memento"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "node_modules/@expo-google-fonts/courier-prime/CourierPrime_400Regular.ttf",
-            "node_modules/@expo-google-fonts/courier-prime/CourierPrime_400Regular_Italic.ttf",
-            "node_modules/@expo-google-fonts/courier-prime/CourierPrime_700Bold.ttf",
-            "node_modules/@expo-google-fonts/courier-prime/CourierPrime_700Bold_Italic.ttf"
-          ]
-        }
-      ],
-      "expo-router"
-    ],
+    "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
     }
