@@ -2,7 +2,12 @@
 module.exports = {
   content: ['./app/**/*.{js,jsx,ts,tsx}', './components/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        cp: 'cp',
+        'cp-bold': 'cp-bold',
+      },
+    },
   },
   plugins: [],
 }
