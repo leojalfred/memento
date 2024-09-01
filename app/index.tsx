@@ -1,44 +1,29 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { styled } from 'nativewind'
-import { Controller, useForm } from 'react-hook-form'
-import { TextInput } from 'react-native'
+import Entry from '@/components/timeline/Entry'
+import { useState } from 'react'
+import { Keyboard, TouchableWithoutFeedback, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import colors from 'tailwindcss/colors'
-import { z } from 'zod'
 
-const entrySchema = z.object({
-  text: z.string(),
-})
-
-const StyledSafeAreaView = styled(SafeAreaView)
-const StyledTextInput = styled(TextInput)
+export interface Selection {
+  start: number
+  end: number
+}
 
 export default function HomeScreen() {
-  const { control } = useForm<z.infer<typeof entrySchema>>({
-    resolver: zodResolver(entrySchema),
-  })
+  const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
 
   return (
-    <StyledSafeAreaView className="mx-4">
-      <Controller
-        name="text"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <StyledTextInput
-            className="font-cp"
-            autoFocus={true}
-            multiline={true}
-            placeholder="Start writing..."
-            selectionColor={colors.gray[500]}
-            value={value}
-            onChangeText={onChange}
-            onSelectionChange={(event) => {
-              const { start, end } = event.nativeEvent.selection
-              if (end - start > 0) console.log(value.substring(start, end))
-            }}
-          />
-        )}
-      />
-    </StyledSafeAreaView>
+    <TouchableWithoutFeedback
+      onPress={() => {
+        Keyboard.dismiss()
+        setSelection({ start: 0, end: 0 })
+      }}
+      accessible={false}
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <View className="p-4">
+          <Entry selection={selection} setSelection={setSelection} />
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   )
 }

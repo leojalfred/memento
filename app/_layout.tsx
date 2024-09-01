@@ -1,33 +1,29 @@
-import {
-  CourierPrime_400Regular,
-  CourierPrime_700Bold,
-  useFonts,
-} from '@expo-google-fonts/courier-prime'
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar'
 import { useEffect } from 'react'
-
-SplashScreen.preventAutoHideAsync()
+import '../global.css'
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    cp: CourierPrime_400Regular,
-    'cp-bold': CourierPrime_700Bold,
-  })
-
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync()
+    async function prepare() {
+      try {
+        await SplashScreen.preventAutoHideAsync()
+        setStatusBarStyle('dark')
+      } catch (e) {
+        console.warn(e)
+      } finally {
+        await SplashScreen.hideAsync()
+      }
     }
-  }, [loaded, error])
 
-  if (!loaded && !error) {
-    return null
-  }
+    prepare()
+  }, [])
 
   return (
     <ThemeProvider value={DefaultTheme}>
+      <StatusBar style="dark" />
       <Stack screenOptions={{ navigationBarHidden: true }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
