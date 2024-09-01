@@ -10,23 +10,22 @@ const entrySchema = z.object({
   text: z.string(),
 })
 
+const StyledSafeAreaView = styled(SafeAreaView)
 const StyledTextInput = styled(TextInput)
 
 export default function HomeScreen() {
-  const {
-    control,
-    formState: { errors },
-  } = useForm<z.infer<typeof entrySchema>>({
+  const { control } = useForm<z.infer<typeof entrySchema>>({
     resolver: zodResolver(entrySchema),
   })
 
   return (
-    <SafeAreaView>
+    <StyledSafeAreaView className="mx-4">
       <Controller
+        name="text"
         control={control}
-        render={({ field: { onChange, onBlur, value } }) => (
+        render={({ field: { onChange, value } }) => (
           <StyledTextInput
-            className="mx-4 font-cp"
+            className="font-cp"
             autoFocus={true}
             multiline={true}
             placeholder="Start writing..."
@@ -39,8 +38,7 @@ export default function HomeScreen() {
             }}
           />
         )}
-        name="text"
       />
-    </SafeAreaView>
+    </StyledSafeAreaView>
   )
 }
