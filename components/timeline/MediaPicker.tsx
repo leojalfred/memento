@@ -4,11 +4,13 @@ import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
+import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
+import colors from 'tailwindcss/colors'
 
 export default function MediaPicker() {
   const [media, setMedia] = useState<string | null>(null)
@@ -106,7 +108,17 @@ export default function MediaPicker() {
             <IconButton icon="video" onPress={() => pickMedia('video')} />
             <Divider />
           </Animated.View>
-          <Animated.View></Animated.View>
+          <Animated.View>
+            <BarIndicator
+              animationDuration={900}
+              color={colors.gray[700]}
+              count={16}
+              size={12}
+              style={{
+                paddingLeft: 16,
+              }}
+            />
+          </Animated.View>
           <IconButton
             icon={isRecorderOpen ? 'stop-circle' : 'mic'}
             onPress={() => {
