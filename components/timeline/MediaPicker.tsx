@@ -43,6 +43,16 @@ export default function MediaPicker() {
   }
 
   const [isRecorderOpen, setIsRecorderOpen] = useState(false)
+  const mediaPickerWidth = useSharedValue(148)
+  useEffect(() => {
+    mediaPickerWidth.value = withTiming(isRecorderOpen ? 130 : 148, {
+      duration: 200,
+    })
+  }, [isRecorderOpen, mediaPickerWidth])
+  const mediaPickerAnimation = useAnimatedStyle(() => ({
+    width: mediaPickerWidth.value,
+  }))
+
   const nonAudioOpacity = useSharedValue(1)
   const nonAudioWidth = useSharedValue(98)
   useEffect(() => {
@@ -50,9 +60,9 @@ export default function MediaPicker() {
       duration: 200,
     })
     nonAudioWidth.value = withTiming(isRecorderOpen ? 0 : 98, {
-      duration: 400,
+      duration: 200,
     })
-  }, [isRecorderOpen, nonAudioWidth, nonAudioOpacity])
+  }, [isRecorderOpen, nonAudioOpacity, nonAudioWidth])
   const nonAudioAnimation = useAnimatedStyle(() => ({
     display:
       nonAudioOpacity.value === 0 && nonAudioWidth.value === 0
@@ -98,25 +108,51 @@ export default function MediaPicker() {
     console.log('Recording stopped and stored at', uri)
   }
 
+  const waveOpacity = useSharedValue(0)
+  const wavePaddingLeft = useSharedValue(0)
+  const waveWidth = useSharedValue(0)
+  useEffect(() => {
+    waveOpacity.value = withTiming(isRecorderOpen ? 1 : 0, {
+      duration: 200,
+    })
+    wavePaddingLeft.value = withTiming(isRecorderOpen ? 16 : 0, {
+      duration: 200,
+    })
+    waveWidth.value = withTiming(isRecorderOpen ? 80 : 0, {
+      duration: 200,
+    })
+  }, [isRecorderOpen, waveOpacity, wavePaddingLeft, waveWidth])
+  const waveAnimation = useAnimatedStyle(() => ({
+    display:
+      waveOpacity.value === 0 &&
+      wavePaddingLeft.value === 0 &&
+      waveWidth.value === 0
+        ? 'none'
+        : 'flex',
+    opacity: waveOpacity.value,
+    paddingLeft: wavePaddingLeft.value,
+    width: waveWidth.value,
+  }))
+
   return (
     <>
       <View className="flex-row items-center justify-between">
-        <View className="box-border w-fit flex-row overflow-hidden rounded-full border border-gray-700">
+        <Animated.View
+          className="box-border flex-row overflow-hidden rounded-full border border-gray-700"
+          style={mediaPickerAnimation}
+        >
           <Animated.View className="flex-row" style={nonAudioAnimation}>
             <IconButton icon="image" onPress={() => pickMedia('image')} />
             <Divider />
             <IconButton icon="video" onPress={() => pickMedia('video')} />
             <Divider />
           </Animated.View>
-          <Animated.View>
+          <Animated.View style={waveAnimation}>
             <BarIndicator
               animationDuration={900}
               color={colors.gray[700]}
               count={16}
               size={12}
-              style={{
-                paddingLeft: 16,
-              }}
             />
           </Animated.View>
           <IconButton
@@ -128,7 +164,7 @@ export default function MediaPicker() {
               // else startRecording()
             }}
           />
-        </View>
+        </Animated.View>
         <Animated.View style={loaderAnimation}>
           <ActivityIndicator size="small" color="#374151" />
         </Animated.View>
