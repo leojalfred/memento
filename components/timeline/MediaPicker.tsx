@@ -40,7 +40,7 @@ export default function MediaPicker() {
   }
 
   return (
-    <View className="flex-row justify-between">
+    <View className="w-full flex-row justify-between">
       <View className="flex-row rounded-full border border-gray-700">
         <IconButton icon="image" onPress={() => pickMedia('image')} />
         <Divider />

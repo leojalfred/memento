@@ -8,7 +8,7 @@ export interface Selection {
   end: number
 }
 
-export default function HomeScreen() {
+export default function TimelineScreen() {
   const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
 
   return (
