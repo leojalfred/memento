@@ -3,7 +3,7 @@ import MediaPicker from '@/components/timeline/MediaPicker'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { TextInput } from 'react-native'
+import { Text, TextInput, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -43,27 +43,38 @@ export default function Entry({ selection, setSelection }: EntryProps) {
 
   return (
     <>
-      <Controller
-        name="text"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            className="font-cp mb-4"
-            autoFocus={true}
-            contextMenuHidden={true}
-            multiline={true}
-            placeholder="Start writing..."
-            selection={selection}
-            selectionColor={colors.gray[500]}
-            value={value}
-            onChangeText={onChange}
-            onSelectionChange={(event) => {
-              const { start, end } = event.nativeEvent.selection
-              setSelection({ start, end })
-            }}
-          />
-        )}
-      />
+      <View className="relative">
+        <Controller
+          name="text"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <>
+              <Text className="font-cp opacity-1 absolute left-0 right-0 top-1 mb-4">
+                {value.slice(0, selection.start)}
+                <Text className="text-purple-500">
+                  {value.slice(selection.start, selection.end)}
+                </Text>
+                {value.slice(selection.end)}
+              </Text>
+              <TextInput
+                className="font-cp opacity-1 mb-4 text-transparent"
+                autoFocus={true}
+                contextMenuHidden={true}
+                multiline={true}
+                placeholder="Start writing..."
+                selection={selection}
+                selectionColor={colors.gray[500]}
+                value={value}
+                onChangeText={onChange}
+                onSelectionChange={(event) => {
+                  const { start, end } = event.nativeEvent.selection
+                  setSelection({ start, end })
+                }}
+              />
+            </>
+          )}
+        />
+      </View>
       <Animated.View style={animatedStyle}>
         <MediaPicker />
       </Animated.View>
