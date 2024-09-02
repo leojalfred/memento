@@ -13,19 +13,17 @@ import Animated, {
 import colors from 'tailwindcss/colors'
 
 export default function MediaPicker() {
-  const [media, setMedia] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const loaderOpacity = useSharedValue(0)
-
   useEffect(() => {
     loaderOpacity.value = withTiming(isLoading ? 1 : 0, { duration: 200 })
   }, [isLoading, loaderOpacity])
-
   const loaderAnimation = useAnimatedStyle(() => ({
     display: loaderOpacity.value === 0 ? 'none' : 'flex',
     opacity: loaderOpacity.value,
   }))
 
+  const [media, setMedia] = useState<string | null>(null)
   const pickMedia = async (type: 'image' | 'video') => {
     setIsLoading(true)
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -72,42 +70,6 @@ export default function MediaPicker() {
     width: nonAudioWidth.value,
   }))
 
-  const [recording, setRecording] = useState<Audio.Recording>()
-  const [permissionResponse, requestPermission] = Audio.usePermissions()
-
-  async function startRecording() {
-    try {
-      if (permissionResponse?.status !== 'granted') {
-        console.log('Requesting permission..')
-        await requestPermission()
-      }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      })
-
-      console.log('Starting recording..')
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      )
-      setRecording(recording)
-      console.log('Recording started')
-    } catch (err) {
-      console.error('Failed to start recording', err)
-    }
-  }
-
-  async function stopRecording() {
-    console.log('Stopping recording..')
-    setRecording(undefined)
-    await recording?.stopAndUnloadAsync()
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-    })
-    const uri = recording?.getURI()
-    console.log('Recording stopped and stored at', uri)
-  }
-
   const waveOpacity = useSharedValue(0)
   const wavePaddingLeft = useSharedValue(0)
   const waveWidth = useSharedValue(0)
@@ -134,41 +96,73 @@ export default function MediaPicker() {
     width: waveWidth.value,
   }))
 
-  return (
-    <>
-      <View className="flex-row items-center justify-between">
-        <Animated.View
-          className="box-border flex-row overflow-hidden rounded-full border border-gray-700"
-          style={mediaPickerAnimation}
-        >
-          <Animated.View className="flex-row" style={nonAudioAnimation}>
-            <IconButton icon="image" onPress={() => pickMedia('image')} />
-            <Divider />
-            <IconButton icon="video" onPress={() => pickMedia('video')} />
-            <Divider />
-          </Animated.View>
-          <Animated.View style={waveAnimation}>
-            <BarIndicator
-              animationDuration={900}
-              color={colors.gray[700]}
-              count={16}
-              size={12}
-            />
-          </Animated.View>
-          <IconButton
-            icon={isRecorderOpen ? 'stop-circle' : 'mic'}
-            onPress={() => {
-              setIsRecorderOpen(!isRecorderOpen)
+  const [recording, setRecording] = useState<Audio.Recording>()
+  const [permissionResponse, requestPermission] = Audio.usePermissions()
+  async function startRecording() {
+    try {
+      if (permissionResponse?.status !== 'granted') {
+        console.log('Requesting permission..')
+        await requestPermission()
+      }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      })
 
-              // if (recording) stopRecording()
-              // else startRecording()
-            }}
+      console.log('Starting recording..')
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
+      )
+      setRecording(recording)
+      console.log('Recording started')
+    } catch (err) {
+      console.error('Failed to start recording', err)
+    }
+  }
+  async function stopRecording() {
+    console.log('Stopping recording..')
+    setRecording(undefined)
+    await recording?.stopAndUnloadAsync()
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+    })
+    const uri = recording?.getURI()
+    console.log('Recording stopped and stored at', uri)
+  }
+
+  return (
+    <View className="flex-row items-center justify-between">
+      <Animated.View
+        className="box-border flex-row overflow-hidden rounded-full border border-gray-700"
+        style={mediaPickerAnimation}
+      >
+        <Animated.View className="flex-row" style={nonAudioAnimation}>
+          <IconButton icon="image" onPress={() => pickMedia('image')} />
+          <Divider />
+          <IconButton icon="video" onPress={() => pickMedia('video')} />
+          <Divider />
+        </Animated.View>
+        <Animated.View style={waveAnimation}>
+          <BarIndicator
+            animationDuration={900}
+            color={colors.gray[700]}
+            count={16}
+            size={12}
           />
         </Animated.View>
-        <Animated.View style={loaderAnimation}>
-          <ActivityIndicator size="small" color="#374151" />
-        </Animated.View>
-      </View>
-    </>
+        <IconButton
+          icon={isRecorderOpen ? 'stop-circle' : 'mic'}
+          onPress={() => {
+            setIsRecorderOpen(!isRecorderOpen)
+
+            // if (recording) stopRecording()
+            // else startRecording()
+          }}
+        />
+      </Animated.View>
+      <Animated.View style={loaderAnimation}>
+        <ActivityIndicator size="small" color="#374151" />
+      </Animated.View>
+    </View>
   )
 }
