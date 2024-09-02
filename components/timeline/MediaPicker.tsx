@@ -100,7 +100,7 @@ export default function MediaPicker() {
             />
           </Animated.View>
           <IconButton
-            icon="mic"
+            icon={isRecorderOpen ? 'stop-circle' : 'mic'}
             onPress={() => {
               setIsRecorderOpen(!isRecorderOpen)
             }}
