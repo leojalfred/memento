@@ -1,18 +1,13 @@
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
-import {
-  Waveform,
-  type IWaveformRef,
-} from '@simform_solutions/react-native-audio-waveform'
 import * as ImagePicker from 'expo-image-picker'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import colors from 'tailwindcss/colors'
 
 export default function MediaPicker() {
   const [media, setMedia] = useState<string | null>(null)
@@ -44,8 +39,6 @@ export default function MediaPicker() {
     setIsLoading(false)
   }
 
-  const ref = useRef<IWaveformRef>(null)
-
   const [isRecorderOpen, setIsRecorderOpen] = useState(false)
   const nonAudioOpacity = useSharedValue(1)
   const nonAudioWidth = useSharedValue(98)
@@ -66,14 +59,6 @@ export default function MediaPicker() {
     width: nonAudioWidth.value,
   }))
 
-  const waveOpacity = useSharedValue(0)
-  useEffect(() => {
-    waveOpacity.value = withTiming(isRecorderOpen ? 1 : 0, { duration: 200 })
-  }, [isRecorderOpen, waveOpacity])
-  const waveAnimation = useAnimatedStyle(() => ({
-    opacity: waveOpacity.value,
-  }))
-
   return (
     <>
       <View className="flex-row justify-between">
@@ -84,21 +69,7 @@ export default function MediaPicker() {
             <IconButton icon="video" onPress={() => pickMedia('video')} />
             <Divider />
           </Animated.View>
-          <Animated.View style={waveAnimation}>
-            <Waveform
-              mode="live"
-              ref={ref}
-              candleHeightScale={1}
-              onRecorderStateChange={(recorderState) =>
-                console.log(recorderState)
-              }
-              waveColor={colors.gray[700]}
-              containerStyle={{
-                display: isRecorderOpen ? 'flex' : 'none',
-                height: 27.3,
-              }}
-            />
-          </Animated.View>
+          <Animated.View></Animated.View>
           <IconButton
             icon={isRecorderOpen ? 'stop-circle' : 'mic'}
             onPress={() => {
