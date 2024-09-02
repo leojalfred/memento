@@ -14,7 +14,7 @@ import colors from 'tailwindcss/colors'
 
 export default function MediaPicker() {
   const [isLoading, setIsLoading] = useState(false)
-  const [media, setMedia] = useState<string | null>(null)
+  const [uri, setURI] = useState<string | null | undefined>(null)
   const pickMedia = async (type: 'image' | 'video') => {
     setIsLoading(true)
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -25,8 +25,9 @@ export default function MediaPicker() {
     })
 
     if (!result.canceled) {
-      setMedia(result.assets[0].uri)
-      console.log(result.assets[0].uri)
+      const uri = result.assets[0].uri
+      setURI(uri)
+      console.log('Media loaded and stored at', uri)
     }
     setIsLoading(false)
   }
@@ -65,12 +66,15 @@ export default function MediaPicker() {
   }
   async function stopRecording() {
     console.log('Stopping recording..')
+
     setRecording(undefined)
     await recording?.stopAndUnloadAsync()
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
     })
+
     const uri = recording?.getURI()
+    setURI(uri)
     console.log('Recording stopped and stored at', uri)
   }
 
