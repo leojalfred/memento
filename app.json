@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "memento",
+    "name": "Memento",
     "slug": "memento",
-    "version": "1.0.0",
+    "version": "0.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "scheme": "memento",
+    "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -14,19 +14,18 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "studio.swivel.memento"
+      "bundleIdentifier": "studio.swivel.memento",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app uses your microphone to allow you to embed audio in your memories."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "studio.swivel.memento"
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "package": "studio.swivel.memento",
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "plugins": [
       [
@@ -43,7 +42,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app accesses your photos to let you embed them in your memories."
+          "photosPermission": "This app accesses your photos to let you embed them in your memories."
         }
       ],
       "expo-router"

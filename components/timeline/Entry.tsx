@@ -47,8 +47,9 @@ export default function Entry({ selection, setSelection }: EntryProps) {
         control={control}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            className="mb-4 font-cp"
+            className="font-cp mb-4"
             autoFocus={true}
+            contextMenuHidden={true}
             multiline={true}
             placeholder="Start writing..."
             selection={selection}
