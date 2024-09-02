@@ -24,6 +24,9 @@ const entrySchema = z.object({
 export default function Entry({ selection, setSelection }: EntryProps) {
   const { control } = useForm<z.infer<typeof entrySchema>>({
     resolver: zodResolver(entrySchema),
+    defaultValues: {
+      text: 'Intentions passion merciful self abstract sea. Battle society dead revaluation salvation justice convictions merciful truth insofar. Morality evil contradict christianity sexuality moral derive play deceptions. Play snare inexpedient merciful society good endless joy derive. Suicide joy morality spirit insofar.',
+    },
   })
 
   const isMediaPickerShown = selection.end - selection.start > 0
