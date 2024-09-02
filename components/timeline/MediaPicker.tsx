@@ -61,7 +61,7 @@ export default function MediaPicker() {
 
   return (
     <>
-      <View className="flex-row justify-between">
+      <View className="flex-row items-center justify-between">
         <View className="box-border w-fit flex-row overflow-hidden rounded-full border border-gray-700">
           <Animated.View className="flex-row" style={nonAudioAnimation}>
             <IconButton icon="image" onPress={() => pickMedia('image')} />
