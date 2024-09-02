@@ -159,7 +159,7 @@ export default function MediaPicker() {
         />
       </Animated.View>
       <Animated.View style={loaderAnimation}>
-        <ActivityIndicator size="small" color="#374151" />
+        <ActivityIndicator size="small" color={colors.gray[700]} />
       </Animated.View>
     </View>
   )
