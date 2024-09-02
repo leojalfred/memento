@@ -30,12 +30,10 @@ export default function Entry({ selection, setSelection }: EntryProps) {
   })
 
   const isMediaPickerShown = selection.end - selection.start > 0
-
   const opacity = useSharedValue(0)
   useEffect(() => {
     opacity.value = withTiming(isMediaPickerShown ? 1 : 0, { duration: 200 })
   }, [isMediaPickerShown, opacity])
-
   const animatedStyle = useAnimatedStyle(() => {
     return {
       opacity: opacity.value,
