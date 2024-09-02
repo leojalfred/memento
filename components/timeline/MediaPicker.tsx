@@ -1,5 +1,6 @@
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
+import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
@@ -59,6 +60,42 @@ export default function MediaPicker() {
     width: nonAudioWidth.value,
   }))
 
+  const [recording, setRecording] = useState<Audio.Recording>()
+  const [permissionResponse, requestPermission] = Audio.usePermissions()
+
+  async function startRecording() {
+    try {
+      if (permissionResponse?.status !== 'granted') {
+        console.log('Requesting permission..')
+        await requestPermission()
+      }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      })
+
+      console.log('Starting recording..')
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
+      )
+      setRecording(recording)
+      console.log('Recording started')
+    } catch (err) {
+      console.error('Failed to start recording', err)
+    }
+  }
+
+  async function stopRecording() {
+    console.log('Stopping recording..')
+    setRecording(undefined)
+    await recording?.stopAndUnloadAsync()
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+    })
+    const uri = recording?.getURI()
+    console.log('Recording stopped and stored at', uri)
+  }
+
   return (
     <>
       <View className="flex-row items-center justify-between">
@@ -74,6 +111,9 @@ export default function MediaPicker() {
             icon={isRecorderOpen ? 'stop-circle' : 'mic'}
             onPress={() => {
               setIsRecorderOpen(!isRecorderOpen)
+
+              // if (recording) stopRecording()
+              // else startRecording()
             }}
           />
         </View>
