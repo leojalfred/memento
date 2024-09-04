@@ -1,5 +1,7 @@
+import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
+import type { Attachment } from '@/components/timeline/Entry'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useEffect, useState } from 'react'
@@ -12,9 +14,16 @@ import Animated, {
 } from 'react-native-reanimated'
 import colors from 'tailwindcss/colors'
 
-export default function MediaPicker() {
+interface MediaPickerProps {
+  selection: Selection
+  setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
+}
+
+export default function MediaPicker({
+  selection,
+  setAttachments,
+}: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [uri, setURI] = useState<string | null | undefined>(null)
   const pickMedia = async (type: 'image' | 'video') => {
     setIsLoading(true)
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -26,7 +35,10 @@ export default function MediaPicker() {
 
     if (!result.canceled) {
       const uri = result.assets[0].uri
-      setURI(uri)
+      setAttachments((attachments) => [
+        ...attachments,
+        { start: selection.start, end: selection.end, uri },
+      ])
       console.log('Media loaded and stored at', uri)
     }
     setIsLoading(false)
@@ -74,8 +86,13 @@ export default function MediaPicker() {
     })
 
     const uri = recording?.getURI()
-    setURI(uri)
-    console.log('Recording stopped and stored at', uri)
+    if (uri) {
+      setAttachments((attachments) => [
+        ...attachments,
+        { start: selection.start, end: selection.end, uri },
+      ])
+      console.log('Recording stopped and stored at', uri)
+    }
   }
 
   const mediaPickerWidth = useSharedValue(148)

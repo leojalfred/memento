@@ -1,6 +1,6 @@
 import type { Selection } from '@/app'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from 'react-native'
 import Animated, {
@@ -14,14 +14,20 @@ import MediaPicker from './MediaPicker'
 
 interface EntryProps {
   isEditing: boolean
-  setIsEditing: (isEditing: boolean) => void
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>
   selection: Selection
-  setSelection: (selection: Selection) => void
+  setSelection: React.Dispatch<React.SetStateAction<Selection>>
 }
 
 const entrySchema = z.object({
   text: z.string(),
 })
+
+export interface Attachment {
+  start: number
+  end: number
+  uri: string
+}
 
 export default function Entry({
   isEditing,
@@ -35,6 +41,11 @@ export default function Entry({
       text: 'Intentions passion merciful self abstract sea. Battle society dead revaluation salvation justice convictions merciful truth insofar. Morality evil contradict christianity sexuality moral derive play deceptions. Play snare inexpedient merciful society good endless joy derive. Suicide joy morality spirit insofar.',
     },
   })
+
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  useEffect(() => {
+    console.log('Attachments:', attachments)
+  }, [attachments])
 
   const textOpacity = useSharedValue(0)
   const inputOpacity = useSharedValue(1)
@@ -104,7 +115,7 @@ export default function Entry({
           )}
         />
         <Animated.View style={mediaPickerAnimation}>
-          <MediaPicker />
+          <MediaPicker selection={selection} setAttachments={setAttachments} />
         </Animated.View>
       </Animated.View>
     </>
