@@ -9,19 +9,22 @@ export interface Selection {
 }
 
 export default function TimelineScreen() {
+  const [isEditing, setIsEditing] = useState(false)
   const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Pressable
-        onPress={() => setSelection({ start: 0, end: 0 })}
-        style={{ flex: 1 }}
-      >
+      <Pressable onPress={() => setIsEditing(false)} style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={{ padding: 16 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Entry selection={selection} setSelection={setSelection} />
+          <Entry
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            selection={selection}
+            setSelection={setSelection}
+          />
         </ScrollView>
       </Pressable>
     </SafeAreaView>
