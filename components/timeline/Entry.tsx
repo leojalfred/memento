@@ -76,14 +76,59 @@ export default function Entry({
     [attachments],
   )
   const text = useMemo(() => {
-    return value.split(' ').map((word, index) => {
-      return (
-        <Text key={`word-${index}`} className="font-cp">
-          {word}{' '}
-        </Text>
+    let result: React.ReactNode[] = []
+    let currentIndex = 0
+
+    sortedAttachments.forEach((attachment) => {
+      // Add words before the attachment
+      if (attachment.start > currentIndex) {
+        const beforeAttachment = value
+          .slice(currentIndex, attachment.start)
+          .trim()
+        beforeAttachment.split(' ').forEach((word, index) => {
+          result.push(
+            <Text key={`word-${result.length}`} className="font-cp">
+              {word}{' '}
+            </Text>,
+          )
+        })
+      }
+
+      // Add the attachment
+      const attachmentText = value
+        .slice(attachment.start, attachment.end)
+        .trim()
+      result.push(
+        <Text
+          key={`attachment-${result.length}`}
+          className="font-cp bg-violet-300"
+        >
+          {attachmentText}
+        </Text>,
       )
+      result.push(
+        <Text key={`space-${result.length}`} className="font-cp">
+          {' '}
+        </Text>,
+      )
+
+      currentIndex = attachment.end
     })
-  }, [value])
+
+    // Add remaining words after the last attachment
+    if (currentIndex < value.length) {
+      const afterLastAttachment = value.slice(currentIndex).trim()
+      afterLastAttachment.split(' ').forEach((word, index) => {
+        result.push(
+          <Text key={`word-${result.length}`} className="font-cp">
+            {word}{' '}
+          </Text>,
+        )
+      })
+    }
+
+    return result
+  }, [value, sortedAttachments])
   const inputText = useMemo(() => {
     return sortedAttachments.length > 0
       ? sortedAttachments.reduce<React.ReactNode[]>(
@@ -139,20 +184,38 @@ export default function Entry({
     setSelection({ start, end })
   }
 
-  const isMediaPickerShown = useMemo(
-    () =>
-      selection.end - selection.start > 0 &&
-      !attachments.some(
-        (attachment) =>
-          (attachment.start <= selection.start &&
-            attachment.end > selection.start) ||
-          (attachment.start < selection.end &&
-            attachment.end >= selection.end) ||
-          (attachment.start >= selection.start &&
-            attachment.end <= selection.end),
-      ),
-    [selection, attachments],
-  )
+  const isMediaPickerShown = useMemo(() => {
+    // Check if selection is not empty
+    if (selection.end - selection.start <= 0) return false
+
+    // Find the start and end of the words containing the selection
+    const wordStartIndex = value.lastIndexOf(' ', selection.start - 1) + 1
+    const wordEndIndex =
+      value.indexOf(' ', selection.end) === -1
+        ? value.length
+        : value.indexOf(' ', selection.end)
+
+    // Check if selection covers exactly one word
+    if (selection.start !== wordStartIndex || selection.end !== wordEndIndex) {
+      return false
+    }
+
+    // Check if the selected word doesn't contain any spaces
+    const selectedWord = value.slice(wordStartIndex, wordEndIndex)
+    if (selectedWord.includes(' ')) {
+      return false
+    }
+
+    // Check if selection contains any attachments
+    return !attachments.some(
+      (attachment) =>
+        (attachment.start <= selection.start &&
+          attachment.end > selection.start) ||
+        (attachment.start < selection.end && attachment.end >= selection.end) ||
+        (attachment.start >= selection.start &&
+          attachment.end <= selection.end),
+    )
+  }, [selection, attachments, value])
   const mediaPickerOpacity = useSharedValue(0)
   useEffect(() => {
     mediaPickerOpacity.value = withTiming(isMediaPickerShown ? 1 : 0, {
