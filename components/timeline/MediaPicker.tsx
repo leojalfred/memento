@@ -3,7 +3,7 @@ import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { BarIndicator } from 'react-native-indicators'
 import Animated, {
@@ -50,17 +50,8 @@ export default function MediaPicker({
   setAttachments,
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const pickMedia = async (type: 'image' | 'video') => {
-    setIsLoading(true)
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes:
-        type === 'image'
-          ? ImagePicker.MediaTypeOptions.Images
-          : ImagePicker.MediaTypeOptions.Videos,
-    })
-
-    if (!result.canceled) {
-      const uri = result.assets[0].uri
+  const pushAttachment = useCallback(
+    (uri: string) => {
       setAttachments((attachments) => {
         const newBackgroundColorIndex =
           attachments.length % highlightColors.length
@@ -74,6 +65,23 @@ export default function MediaPicker({
           },
         ]
       })
+    },
+    [setAttachments, selection.start, selection.end],
+  )
+
+  const pickMedia = async (type: 'image' | 'video') => {
+    setIsLoading(true)
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes:
+        type === 'image'
+          ? ImagePicker.MediaTypeOptions.Images
+          : ImagePicker.MediaTypeOptions.Videos,
+    })
+
+    if (!result.canceled) {
+      const uri = result.assets[0].uri
+      pushAttachment(uri)
+
       console.log('Media loaded and stored at', uri)
     }
     setIsLoading(false)
@@ -122,19 +130,7 @@ export default function MediaPicker({
 
     const uri = recording?.getURI()
     if (uri) {
-      setAttachments((attachments) => {
-        const newBackgroundColorIndex =
-          attachments.length % highlightColors.length
-        return [
-          ...attachments,
-          {
-            start: selection.start,
-            end: selection.end,
-            uri,
-            backgroundColorIndex: newBackgroundColorIndex,
-          },
-        ]
-      })
+      pushAttachment(uri)
       console.log('Recording stopped and stored at', uri)
     }
   }
