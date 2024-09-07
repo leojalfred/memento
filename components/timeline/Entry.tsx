@@ -81,8 +81,9 @@ export default function Entry({
     return sortedAttachments.length > 0
       ? sortedAttachments.reduce<React.ReactNode[]>(
           (acc, attachment, index) => {
-            const prevEnd = index > 0 ? sortedAttachments[index - 1].end : 0
-            acc.push(value.slice(prevEnd, attachment.start))
+            const previousEnd = index > 0 ? sortedAttachments[index - 1].end : 0
+
+            acc.push(value.slice(previousEnd, attachment.start))
             acc.push(
               <Text key={index} className="text-purple-500">
                 {value.slice(attachment.start, attachment.end)}
@@ -91,6 +92,7 @@ export default function Entry({
             if (index === sortedAttachments.length - 1) {
               acc.push(value.slice(attachment.end))
             }
+
             return acc
           },
           [],
@@ -105,12 +107,26 @@ export default function Entry({
     setSelection({ start, end })
   }
 
+  const isMediaPickerShown = useMemo(
+    () =>
+      selection.end - selection.start > 0 &&
+      !attachments.some(
+        (attachment) =>
+          (attachment.start <= selection.start &&
+            attachment.end > selection.start) ||
+          (attachment.start < selection.end &&
+            attachment.end >= selection.end) ||
+          (attachment.start >= selection.start &&
+            attachment.end <= selection.end),
+      ),
+    [selection, attachments],
+  )
+
   const mediaPickerOpacity = useSharedValue(0)
   useEffect(() => {
-    mediaPickerOpacity.value = withTiming(
-      selection.end - selection.start > 0 ? 1 : 0,
-      { duration: 200 },
-    )
+    mediaPickerOpacity.value = withTiming(isMediaPickerShown ? 1 : 0, {
+      duration: 200,
+    })
   }, [selection, mediaPickerOpacity])
   const mediaPickerAnimation = useAnimatedStyle(() => {
     return {
