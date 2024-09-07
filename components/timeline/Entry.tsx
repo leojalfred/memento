@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import {
-  NativeSyntheticEvent,
+  type NativeSyntheticEvent,
   Text,
   TextInput,
-  TextInputSelectionChangeEventData,
+  type TextInputSelectionChangeEventData,
   View,
 } from 'react-native'
 import Animated, {
@@ -16,7 +16,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import colors from 'tailwindcss/colors'
 import { z } from 'zod'
-import MediaPicker from './MediaPicker'
+import MediaPicker, { type Attachment, highlightColors } from './MediaPicker'
 
 interface EntryProps {
   isEditing: boolean
@@ -28,33 +28,6 @@ interface EntryProps {
 const entrySchema = z.object({
   text: z.string(),
 })
-
-export interface Attachment {
-  start: number
-  end: number
-  uri: string
-  backgroundColorIndex: number
-}
-
-export const highlightColors = [
-  'bg-red-300',
-  'bg-orange-300',
-  'bg-amber-300',
-  'bg-yellow-300',
-  'bg-lime-300',
-  'bg-green-300',
-  'bg-emerald-300',
-  'bg-teal-300',
-  'bg-cyan-300',
-  'bg-sky-300',
-  'bg-blue-300',
-  'bg-indigo-300',
-  'bg-violet-300',
-  'bg-purple-300',
-  'bg-fuchsia-300',
-  'bg-pink-300',
-  'bg-rose-300',
-]
 
 export default function Entry({
   isEditing,
