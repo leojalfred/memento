@@ -2,7 +2,13 @@ import type { Selection } from '@/app'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Text, TextInput } from 'react-native'
+import {
+  NativeSyntheticEvent,
+  Text,
+  TextInput,
+  TextInputSelectionChangeEventData,
+  View,
+} from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -69,6 +75,36 @@ export default function Entry({
     display: inputOpacity.value === 0 ? 'none' : 'flex',
   }))
 
+  const inputText = useMemo(() => {
+    const value = getValues('text')
+    const sortedAttachments = [...attachments].sort((a, b) => a.end - b.end)
+    return sortedAttachments.length > 0
+      ? sortedAttachments.reduce<React.ReactNode[]>(
+          (acc, attachment, index) => {
+            const prevEnd = index > 0 ? sortedAttachments[index - 1].end : 0
+            acc.push(value.slice(prevEnd, attachment.start))
+            acc.push(
+              <Text key={index} className="text-purple-500">
+                {value.slice(attachment.start, attachment.end)}
+              </Text>,
+            )
+            if (index === sortedAttachments.length - 1) {
+              acc.push(value.slice(attachment.end))
+            }
+            return acc
+          },
+          [],
+        )
+      : value
+  }, [getValues('text'), attachments])
+
+  function onSelectionChange(
+    event: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
+  ) {
+    const { start, end } = event.nativeEvent.selection
+    setSelection({ start, end })
+  }
+
   const mediaPickerOpacity = useSharedValue(0)
   useEffect(() => {
     mediaPickerOpacity.value = withTiming(
@@ -82,10 +118,6 @@ export default function Entry({
       display: mediaPickerOpacity.value === 0 ? 'none' : 'flex',
     }
   })
-
-  const sortedAttachments = useMemo(() => {
-    return [...attachments].sort((a, b) => a.end - b.end)
-  }, [attachments])
 
   return (
     <>
@@ -101,27 +133,9 @@ export default function Entry({
           name="text"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <>
+            <View className="relative">
               <Text className="font-cp absolute left-px right-0 top-px p-2">
-                {sortedAttachments.length > 0
-                  ? sortedAttachments.reduce<React.ReactNode[]>(
-                      (acc, attachment, index) => {
-                        const prevEnd =
-                          index > 0 ? sortedAttachments[index - 1].end : 0
-                        acc.push(value.slice(prevEnd, attachment.start))
-                        acc.push(
-                          <Text key={index} className="text-purple-500">
-                            {value.slice(attachment.start, attachment.end)}
-                          </Text>,
-                        )
-                        if (index === sortedAttachments.length - 1) {
-                          acc.push(value.slice(attachment.end))
-                        }
-                        return acc
-                      },
-                      [],
-                    )
-                  : value}
+                {inputText}
               </Text>
               <TextInput
                 className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
@@ -133,12 +147,9 @@ export default function Entry({
                 selectionColor={colors.gray[500]}
                 value={value}
                 onChangeText={onChange}
-                onSelectionChange={(event) => {
-                  const { start, end } = event.nativeEvent.selection
-                  setSelection({ start, end })
-                }}
+                onSelectionChange={onSelectionChange}
               />
-            </>
+            </View>
           )}
         />
         <Animated.View style={mediaPickerAnimation}>
