@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import {
   type NativeSyntheticEvent,
+  Pressable,
   Text,
   TextInput,
   type TextInputSelectionChangeEventData,
@@ -69,9 +70,21 @@ export default function Entry({
     display: inputOpacity.value === 0 ? 'none' : 'flex',
   }))
 
+  const value = getValues('text')
+  const sortedAttachments = useMemo(
+    () => [...attachments].sort((a, b) => a.end - b.end),
+    [attachments],
+  )
+  const text = useMemo(() => {
+    return value.split(' ').map((word, index) => {
+      return (
+        <Text key={`word-${index}`} className="font-cp">
+          {word}{' '}
+        </Text>
+      )
+    })
+  }, [value])
   const inputText = useMemo(() => {
-    const value = getValues('text')
-    const sortedAttachments = [...attachments].sort((a, b) => a.end - b.end)
     return sortedAttachments.length > 0
       ? sortedAttachments.reduce<React.ReactNode[]>(
           (acc, attachment, index) => {
@@ -95,8 +108,30 @@ export default function Entry({
           [],
         )
       : value
-  }, [getValues, attachments])
+  }, [value, sortedAttachments])
 
+  function adjustAttachments(newText: string, value: string) {
+    const difference = newText.length - value.length
+    if (difference !== 0) {
+      setAttachments((attachments) =>
+        attachments.map((attachment) => {
+          if (selection.start <= attachment.start) {
+            return {
+              ...attachment,
+              start: attachment.start + difference,
+              end: attachment.end + difference,
+            }
+          } else if (selection.start < attachment.end) {
+            return {
+              ...attachment,
+              end: Math.max(attachment.start, attachment.end + difference),
+            }
+          }
+          return attachment
+        }),
+      )
+    }
+  }
   function onSelectionChange(
     event: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
   ) {
@@ -118,7 +153,6 @@ export default function Entry({
       ),
     [selection, attachments],
   )
-
   const mediaPickerOpacity = useSharedValue(0)
   useEffect(() => {
     mediaPickerOpacity.value = withTiming(isMediaPickerShown ? 1 : 0, {
@@ -134,13 +168,14 @@ export default function Entry({
 
   return (
     <>
-      <Animated.Text
-        className="font-cp"
-        style={textAnimation}
-        onPress={() => setIsEditing(true)}
-      >
-        {getValues('text')}
-      </Animated.Text>
+      <Animated.View className="font-cp" style={textAnimation}>
+        <Pressable
+          className="flex-row flex-wrap"
+          onPress={() => setIsEditing(true)}
+        >
+          {text}
+        </Pressable>
+      </Animated.View>
       <Animated.View style={inputAnimation}>
         <Controller
           name="text"
@@ -159,7 +194,10 @@ export default function Entry({
                 selection={selection}
                 selectionColor={colors.gray[500]}
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(newText) => {
+                  onChange(newText)
+                  adjustAttachments(newText, value)
+                }}
                 onSelectionChange={onSelectionChange}
               />
             </View>
