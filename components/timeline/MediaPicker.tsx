@@ -1,7 +1,7 @@
 import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
-import type { Attachment } from '@/components/timeline/Entry'
+import { highlightColors, type Attachment } from '@/components/timeline/Entry'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useEffect, useState } from 'react'
@@ -35,10 +35,19 @@ export default function MediaPicker({
 
     if (!result.canceled) {
       const uri = result.assets[0].uri
-      setAttachments((attachments) => [
-        ...attachments,
-        { start: selection.start, end: selection.end, uri },
-      ])
+      setAttachments((attachments) => {
+        const newBackgroundColorIndex =
+          attachments.length % highlightColors.length
+        return [
+          ...attachments,
+          {
+            start: selection.start,
+            end: selection.end,
+            uri,
+            backgroundColorIndex: newBackgroundColorIndex,
+          },
+        ]
+      })
       console.log('Media loaded and stored at', uri)
     }
     setIsLoading(false)
@@ -87,10 +96,19 @@ export default function MediaPicker({
 
     const uri = recording?.getURI()
     if (uri) {
-      setAttachments((attachments) => [
-        ...attachments,
-        { start: selection.start, end: selection.end, uri },
-      ])
+      setAttachments((attachments) => {
+        const newBackgroundColorIndex =
+          attachments.length % highlightColors.length
+        return [
+          ...attachments,
+          {
+            start: selection.start,
+            end: selection.end,
+            uri,
+            backgroundColorIndex: newBackgroundColorIndex,
+          },
+        ]
+      })
       console.log('Recording stopped and stored at', uri)
     }
   }

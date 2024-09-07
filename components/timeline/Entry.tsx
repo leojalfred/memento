@@ -33,7 +33,28 @@ export interface Attachment {
   start: number
   end: number
   uri: string
+  backgroundColorIndex: number
 }
+
+export const highlightColors = [
+  'bg-red-300',
+  'bg-orange-300',
+  'bg-amber-300',
+  'bg-yellow-300',
+  'bg-lime-300',
+  'bg-green-300',
+  'bg-emerald-300',
+  'bg-teal-300',
+  'bg-cyan-300',
+  'bg-sky-300',
+  'bg-blue-300',
+  'bg-indigo-300',
+  'bg-violet-300',
+  'bg-purple-300',
+  'bg-fuchsia-300',
+  'bg-pink-300',
+  'bg-rose-300',
+]
 
 export default function Entry({
   isEditing,
@@ -85,7 +106,10 @@ export default function Entry({
 
             acc.push(value.slice(previousEnd, attachment.start))
             acc.push(
-              <Text key={index} className="text-purple-500">
+              <Text
+                key={index}
+                className={highlightColors[attachment.backgroundColorIndex]}
+              >
                 {value.slice(attachment.start, attachment.end)}
               </Text>,
             )
@@ -98,7 +122,7 @@ export default function Entry({
           [],
         )
       : value
-  }, [getValues('text'), attachments])
+  }, [getValues, attachments])
 
   function onSelectionChange(
     event: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
@@ -127,7 +151,7 @@ export default function Entry({
     mediaPickerOpacity.value = withTiming(isMediaPickerShown ? 1 : 0, {
       duration: 200,
     })
-  }, [selection, mediaPickerOpacity])
+  }, [mediaPickerOpacity, isMediaPickerShown])
   const mediaPickerAnimation = useAnimatedStyle(() => {
     return {
       opacity: mediaPickerOpacity.value,
