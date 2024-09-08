@@ -23,7 +23,10 @@ export default function EntryText({
             .trim()
           previousText.split(' ').forEach((word, j) => {
             acc.push(
-              <Text key={`previous-${i}-${j}`} className="font-cp ml-2.5">
+              <Text
+                key={`previous-${i}-${j}`}
+                className="font-cp ml-2.5 leading-[1.123]"
+              >
                 {word}
               </Text>,
             )
@@ -60,7 +63,10 @@ export default function EntryText({
             const remainingText = value.slice(attachment.end).trim()
             remainingText.split(' ').forEach((word, j) => {
               acc.push(
-                <Text key={`remaining-${i}-${j}`} className="font-cp ml-2.5">
+                <Text
+                  key={`remaining-${i}-${j}`}
+                  className="font-cp ml-2.5 leading-[1.123]"
+                >
                   {word}
                 </Text>,
               )
@@ -71,7 +77,7 @@ export default function EntryText({
         }, [])}
       </View>
     ) : (
-      <Text className="font-cp">{value}</Text>
+      <Text className="font-cp leading-[1.123]">{value}</Text>
     )
   }, [value, sortedAttachments])
 }

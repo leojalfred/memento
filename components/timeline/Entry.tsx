@@ -33,7 +33,7 @@ export default function Entry({
   const { control, getValues } = useForm<z.infer<typeof entrySchema>>({
     resolver: zodResolver(entrySchema),
     defaultValues: {
-      text: 'Intentions passion merciful self abstract sea. Battle society dead revaluation salvation justice convictions merciful truth insofar. Morality evil contradict christianity sexuality moral derive play deceptions. Play snare inexpedient merciful society good endless joy derive. Suicide joy morality spirit insofar.',
+      text: "Bruh, so like, I was vibin' 😎 the other day, straight chillin' with my squad 💯, and outta nowhere, someone goes full sus mode 👀, all sketch 😬, like fr? I was lowkey shook 😳, but I kept it 100, no cap 🧢. Then my homie starts flexin’ his drip 💧, totally bussin’ 🔥, and I’m like “yo, deadass? 🤨” We just tryna keep it Gucci 😌, but the whole sitch got hella goofy 🤡, ngl. At the end of the day, we all just finna bounce 🏃‍♂️, cuz ain’t nobody got time for that energy 💤. Keep it savage 💪, fam, issa whole vibe 🌊.",
     },
   })
 

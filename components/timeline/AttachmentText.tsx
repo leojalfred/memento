@@ -48,7 +48,7 @@ export default function AttachmentText({
       className={twMerge('-mr-1 ml-1.5 rounded-lg px-1', className)}
       colors={[]}
     >
-      <Text className="font-cp text-white">{children}</Text>
+      <Text className="font-cp leading-[1.123] text-white">{children}</Text>
     </AnimatedLinearGradient>
   )
 }

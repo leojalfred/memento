@@ -92,11 +92,11 @@ export default function EntryTextInput({
       control={control}
       render={({ field: { onChange, value } }) => (
         <View className="relative">
-          <Text className="font-cp absolute left-px right-0 top-px p-2">
+          <Text className="font-cp absolute left-px right-0 top-[1.5px] p-2 leading-[1.123]">
             {inputText}
           </Text>
           <TextInput
-            className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
+            className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-pink-500"
             contextMenuHidden={true}
             multiline={true}
             placeholder="Start writing..."
