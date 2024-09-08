@@ -13,8 +13,11 @@ import {
   View,
 } from 'react-native'
 import Animated, {
+  interpolateColor,
+  useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
   withTiming,
 } from 'react-native-reanimated'
 import colors from 'tailwindcss/colors'
@@ -27,16 +30,42 @@ cssInterop(LinearGradient, {
   },
 })
 
-function GradientBackgroundText({ children }: { children: string }) {
+interface GradientBackgroundTextProps {
+  children: string
+}
+
+const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
+
+function GradientBackgroundText({ children }: GradientBackgroundTextProps) {
+  const progress = useSharedValue(0)
+  useEffect(() => {
+    progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true)
+  }, [progress])
+  const animatedColors = useAnimatedProps(() => ({
+    colors: [
+      interpolateColor(
+        progress.value,
+        [0, 1],
+        [colors.violet[600], colors.rose[600]],
+      ),
+      interpolateColor(
+        progress.value,
+        [0, 1],
+        [colors.rose[600], colors.violet[600]],
+      ),
+    ],
+  }))
+
   return (
-    <LinearGradient
-      colors={[colors.violet[500], colors.rose[500]]}
+    <AnimatedLinearGradient
+      animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      className="ml-2.5"
+      className="-mr-1 ml-1.5 rounded-lg px-1"
+      colors={[]}
     >
-      <Text className="font-cp">{children}</Text>
-    </LinearGradient>
+      <Text className="font-cp text-white">{children}</Text>
+    </AnimatedLinearGradient>
   )
 }
 
