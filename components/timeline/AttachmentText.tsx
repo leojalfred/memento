@@ -14,7 +14,7 @@ import { twMerge } from 'tailwind-merge'
 interface AttachmentTextProps {
   className?: string
   colorPair: [string, string]
-  children: React.ReactNode[]
+  children: React.ReactNode
 }
 
 cssInterop(LinearGradient, {
@@ -48,7 +48,7 @@ export default function AttachmentText({
       className={twMerge('-mr-1 ml-1.5 rounded-lg px-1', className)}
       colors={[]}
     >
-      <Text className="font-cp leading-[1.123] text-white">{children}</Text>
+      <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
     </AnimatedLinearGradient>
   )
 }
