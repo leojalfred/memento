@@ -1,6 +1,6 @@
+import colors from '@/constants/colors'
 import { Feather } from '@expo/vector-icons'
 import { GestureResponderEvent, TouchableOpacity } from 'react-native'
-import colors from 'tailwindcss/colors'
 
 interface IconButtonProps {
   icon: keyof typeof Feather.glyphMap

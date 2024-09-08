@@ -1,4 +1,5 @@
 import type { Selection } from '@/app'
+import colors from '@/constants/colors'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LinearGradient } from 'expo-linear-gradient'
 import { cssInterop } from 'nativewind'
@@ -20,7 +21,6 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
-import colors from 'tailwindcss/colors'
 import { z } from 'zod'
 import MediaPicker, { type Attachment, highlightColors } from './MediaPicker'
 

@@ -1,6 +1,7 @@
 import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
+import colors from '@/constants/colors'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
@@ -11,7 +12,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import colors from 'tailwindcss/colors'
 
 export interface Attachment {
   start: number
