@@ -14,7 +14,7 @@ import { twMerge } from 'tailwind-merge'
 interface AttachmentTextProps {
   className?: string
   colorPair: [string, string]
-  children: string
+  children: React.ReactNode[]
 }
 
 cssInterop(LinearGradient, {
