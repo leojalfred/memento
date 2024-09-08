@@ -96,7 +96,7 @@ export default function EntryTextInput({
             {inputText}
           </Text>
           <TextInput
-            className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-pink-500"
+            className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
             contextMenuHidden={true}
             multiline={true}
             placeholder="Start writing..."
