@@ -1,7 +1,7 @@
 import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
-import colors from '@/constants/colors'
+import { colors } from '@/constants/colors'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
@@ -17,33 +17,13 @@ export interface Attachment {
   start: number
   end: number
   uri: string
-  backgroundColorIndex: number
+  colorPairIndex: number
 }
 
 interface MediaPickerProps {
   selection: Selection
   setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
 }
-
-export const highlightColors = [
-  'bg-red-300',
-  'bg-orange-300',
-  'bg-amber-300',
-  'bg-yellow-300',
-  'bg-lime-300',
-  'bg-green-300',
-  'bg-emerald-300',
-  'bg-teal-300',
-  'bg-cyan-300',
-  'bg-sky-300',
-  'bg-blue-300',
-  'bg-indigo-300',
-  'bg-violet-300',
-  'bg-purple-300',
-  'bg-fuchsia-300',
-  'bg-pink-300',
-  'bg-rose-300',
-]
 
 export default function MediaPicker({
   selection,
@@ -52,19 +32,15 @@ export default function MediaPicker({
   const [isLoading, setIsLoading] = useState(false)
   const pushAttachment = useCallback(
     (uri: string) => {
-      setAttachments((attachments) => {
-        const newBackgroundColorIndex =
-          attachments.length % highlightColors.length
-        return [
-          ...attachments,
-          {
-            start: selection.start,
-            end: selection.end,
-            uri,
-            backgroundColorIndex: newBackgroundColorIndex,
-          },
-        ]
-      })
+      setAttachments((attachments) => [
+        ...attachments,
+        {
+          start: selection.start,
+          end: selection.end,
+          uri,
+          colorPairIndex: Math.floor(Math.random() * 34),
+        },
+      ])
     },
     [setAttachments, selection.start, selection.end],
   )

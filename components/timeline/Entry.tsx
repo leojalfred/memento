@@ -1,9 +1,6 @@
 import type { Selection } from '@/app'
-import MediaPicker, {
-  type Attachment,
-  highlightColors,
-} from '@/components/timeline/MediaPicker'
-import colors from '@/constants/colors'
+import MediaPicker, { type Attachment } from '@/components/timeline/MediaPicker'
+import { colorPairs, colors } from '@/constants/colors'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LinearGradient } from 'expo-linear-gradient'
 import { cssInterop } from 'nativewind'
@@ -28,21 +25,22 @@ import Animated, {
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
+interface GradientBackgroundTextProps {
+  className?: string
+  colorPair: [string, string]
+  children: string
+}
+
 cssInterop(LinearGradient, {
   className: {
     target: 'style',
   },
 })
-
-interface GradientBackgroundTextProps {
-  className?: string
-  children: string
-}
-
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
 function GradientBackgroundText({
   className,
+  colorPair,
   children,
 }: GradientBackgroundTextProps) {
   const progress = useSharedValue(0)
@@ -51,16 +49,8 @@ function GradientBackgroundText({
   }, [progress])
   const animatedColors = useAnimatedProps(() => ({
     colors: [
-      interpolateColor(
-        progress.value,
-        [0, 1],
-        [colors.violet[600], colors.rose[600]],
-      ),
-      interpolateColor(
-        progress.value,
-        [0, 1],
-        [colors.rose[600], colors.violet[600]],
-      ),
+      interpolateColor(progress.value, [0, 1], colorPair),
+      interpolateColor(progress.value, [0, 1], colorPair.toReversed()),
     ],
   }))
 
@@ -135,7 +125,7 @@ export default function Entry({
   )
   const text = useMemo(() => {
     return sortedAttachments.length > 0 ? (
-      <View className="-ml-2.5 flex-row flex-wrap">
+      <View className="-ml-2.5 flex-row flex-wrap items-end">
         {sortedAttachments.reduce<React.ReactNode[]>((acc, attachment, i) => {
           const previousText = value
             .slice(i > 0 ? sortedAttachments[i - 1].end : 0, attachment.start)
@@ -164,8 +154,13 @@ export default function Entry({
               '-mr-2.5',
           )
 
+          const colorPair = colorPairs[attachment.colorPairIndex]
           acc.push(
-            <GradientBackgroundText key={`start-${i}`} className={classes}>
+            <GradientBackgroundText
+              key={`attachment-${i}`}
+              className={classes}
+              colorPair={colorPair}
+            >
               {value.slice(attachment.start, attachment.end)}
             </GradientBackgroundText>,
           )
@@ -196,10 +191,7 @@ export default function Entry({
 
             acc.push(value.slice(previousEnd, attachment.start))
             acc.push(
-              <Text
-                key={index}
-                className={highlightColors[attachment.backgroundColorIndex]}
-              >
+              <Text key={index} className="bg-yellow-200">
                 {value.slice(attachment.start, attachment.end)}
               </Text>,
             )

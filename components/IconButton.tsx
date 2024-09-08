@@ -1,4 +1,4 @@
-import colors from '@/constants/colors'
+import { colors } from '@/constants/colors'
 import { Feather } from '@expo/vector-icons'
 import { GestureResponderEvent, TouchableOpacity } from 'react-native'
 
