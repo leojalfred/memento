@@ -57,10 +57,13 @@ export default function EntryText({
             >
               {value
                 .slice(attachment.start, attachment.end)
-                .split(/(\p{Emoji})/u)
+                .split(/(\p{Emoji_Presentation})/u)
                 .map((part, k) =>
-                  part.match(/\p{Emoji}/u) ? (
-                    <Text key={`attachment-emoji-${k}`} className="text-xs">
+                  part.match(/\p{Emoji_Presentation}/u) ? (
+                    <Text
+                      key={`attachment-emoji-${k}`}
+                      className="text-[0.75rem]"
+                    >
                       {part}
                     </Text>
                   ) : (
