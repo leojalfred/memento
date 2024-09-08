@@ -1,71 +1,19 @@
 import type { Selection } from '@/app'
+import EntryText from '@/components/timeline/EntryText'
+import EntryTextInput, {
+  entrySchema,
+} from '@/components/timeline/EntryTextInput'
 import MediaPicker, { type Attachment } from '@/components/timeline/MediaPicker'
-import { colorPairs, colors } from '@/constants/colors'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LinearGradient } from 'expo-linear-gradient'
-import { cssInterop } from 'nativewind'
 import { useEffect, useMemo, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import {
-  type NativeSyntheticEvent,
-  Pressable,
-  Text,
-  TextInput,
-  type TextInputSelectionChangeEventData,
-  View,
-} from 'react-native'
+import { useForm } from 'react-hook-form'
+import { Pressable } from 'react-native'
 import Animated, {
-  interpolateColor,
-  useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
   withTiming,
 } from 'react-native-reanimated'
-import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
-
-interface GradientBackgroundTextProps {
-  className?: string
-  colorPair: [string, string]
-  children: string
-}
-
-cssInterop(LinearGradient, {
-  className: {
-    target: 'style',
-  },
-})
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
-
-function GradientBackgroundText({
-  className,
-  colorPair,
-  children,
-}: GradientBackgroundTextProps) {
-  const progress = useSharedValue(0)
-  useEffect(() => {
-    progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true)
-  }, [progress])
-  const animatedColors = useAnimatedProps(() => ({
-    colors: [
-      interpolateColor(progress.value, [0, 1], colorPair),
-      interpolateColor(progress.value, [0, 1], colorPair.toReversed()),
-    ],
-  }))
-
-  return (
-    <AnimatedLinearGradient
-      animatedProps={animatedColors}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      className={twMerge('-mr-1 ml-1.5 rounded-lg px-1', className)}
-      colors={[]}
-    >
-      <Text className="font-cp text-white">{children}</Text>
-    </AnimatedLinearGradient>
-  )
-}
 
 interface EntryProps {
   isEditing: boolean
@@ -73,10 +21,6 @@ interface EntryProps {
   selection: Selection
   setSelection: React.Dispatch<React.SetStateAction<Selection>>
 }
-
-const entrySchema = z.object({
-  text: z.string(),
-})
 
 export default function Entry({
   isEditing,
@@ -123,117 +67,6 @@ export default function Entry({
     () => [...attachments].sort((a, b) => a.end - b.end),
     [attachments],
   )
-  const text = useMemo(() => {
-    return sortedAttachments.length > 0 ? (
-      <View className="-ml-2.5 flex-row flex-wrap items-end">
-        {sortedAttachments.reduce<React.ReactNode[]>((acc, attachment, i) => {
-          const previousText = value
-            .slice(i > 0 ? sortedAttachments[i - 1].end : 0, attachment.start)
-            .trim()
-          previousText.split(' ').forEach((word, j) => {
-            acc.push(
-              <Text key={`previous-${i}-${j}`} className="font-cp ml-2.5">
-                {word}
-              </Text>,
-            )
-          })
-
-          const attachmentStartsInWord = value[attachment.start - 1] !== ' '
-          const attachmentStartsAtStart = attachment.start === 0
-          const attachmentEndsAtEnd = attachment.end === value.length
-          const attachmentEndsInWord = value[attachment.end] !== ' '
-          const attachmentHasAttachmentAsNextWord =
-            i !== sortedAttachments.length - 1 &&
-            attachment.end + 1 === sortedAttachments[i + 1].start
-          const classes = twMerge(
-            attachmentStartsInWord && 'ml-0',
-            attachmentStartsAtStart && '-ml-1',
-            (attachmentEndsAtEnd ||
-              attachmentEndsInWord ||
-              attachmentHasAttachmentAsNextWord) &&
-              '-mr-2.5',
-          )
-
-          const colorPair = colorPairs[attachment.colorPairIndex]
-          acc.push(
-            <GradientBackgroundText
-              key={`attachment-${i}`}
-              className={classes}
-              colorPair={colorPair}
-            >
-              {value.slice(attachment.start, attachment.end)}
-            </GradientBackgroundText>,
-          )
-
-          if (i === sortedAttachments.length - 1) {
-            const remainingText = value.slice(attachment.end).trim()
-            remainingText.split(' ').forEach((word, j) => {
-              acc.push(
-                <Text key={`remaining-${i}-${j}`} className="font-cp ml-2.5">
-                  {word}
-                </Text>,
-              )
-            })
-          }
-
-          return acc
-        }, [])}
-      </View>
-    ) : (
-      <Text className="font-cp">{value}</Text>
-    )
-  }, [value, sortedAttachments])
-  const inputText = useMemo(() => {
-    return sortedAttachments.length > 0
-      ? sortedAttachments.reduce<React.ReactNode[]>(
-          (acc, attachment, index) => {
-            const previousEnd = index > 0 ? sortedAttachments[index - 1].end : 0
-
-            acc.push(value.slice(previousEnd, attachment.start))
-            acc.push(
-              <Text key={index} className="bg-yellow-200">
-                {value.slice(attachment.start, attachment.end)}
-              </Text>,
-            )
-            if (index === sortedAttachments.length - 1) {
-              acc.push(value.slice(attachment.end))
-            }
-
-            return acc
-          },
-          [],
-        )
-      : value
-  }, [value, sortedAttachments])
-
-  function adjustAttachments(newText: string, value: string) {
-    const difference = newText.length - value.length
-    if (difference !== 0) {
-      setAttachments((attachments) =>
-        attachments.map((attachment) => {
-          if (selection.start <= attachment.start) {
-            return {
-              ...attachment,
-              start: attachment.start + difference,
-              end: attachment.end + difference,
-            }
-          } else if (selection.start < attachment.end) {
-            return {
-              ...attachment,
-              end: Math.max(attachment.start, attachment.end + difference),
-            }
-          }
-          return attachment
-        }),
-      )
-    }
-  }
-  function onSelectionChange(
-    event: NativeSyntheticEvent<TextInputSelectionChangeEventData>,
-  ) {
-    const { start, end } = event.nativeEvent.selection
-    setSelection({ start, end })
-  }
 
   const isMediaPickerShown = useMemo(() => {
     if (selection.end - selection.start <= 0) return false
@@ -263,33 +96,18 @@ export default function Entry({
   return (
     <>
       <Animated.View style={textAnimation}>
-        <Pressable onPress={() => setIsEditing(true)}>{text}</Pressable>
+        <Pressable onPress={() => setIsEditing(true)}>
+          <EntryText value={value} sortedAttachments={sortedAttachments} />
+        </Pressable>
       </Animated.View>
       <Animated.View style={inputAnimation}>
-        <Controller
-          name="text"
+        <EntryTextInput
+          value={value}
+          sortedAttachments={sortedAttachments}
           control={control}
-          render={({ field: { onChange, value } }) => (
-            <View className="relative">
-              <Text className="font-cp absolute left-px right-0 top-px p-2">
-                {inputText}
-              </Text>
-              <TextInput
-                className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
-                contextMenuHidden={true}
-                multiline={true}
-                placeholder="Start writing..."
-                selection={selection}
-                selectionColor={colors.gray[500]}
-                value={value}
-                onChangeText={(newText) => {
-                  onChange(newText)
-                  adjustAttachments(newText, value)
-                }}
-                onSelectionChange={onSelectionChange}
-              />
-            </View>
-          )}
+          setAttachments={setAttachments}
+          selection={selection}
+          setSelection={setSelection}
         />
         <Animated.View style={mediaPickerAnimation}>
           <MediaPicker selection={selection} setAttachments={setAttachments} />
