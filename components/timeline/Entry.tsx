@@ -280,7 +280,6 @@ export default function Entry({
               </Text>
               <TextInput
                 className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
-                autoFocus={true}
                 contextMenuHidden={true}
                 multiline={true}
                 placeholder="Start writing..."
