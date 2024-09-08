@@ -92,7 +92,7 @@ export default function EntryTextInput({
       control={control}
       render={({ field: { onChange, value } }) => (
         <View className="relative">
-          <Text className="font-cp absolute left-px right-0 top-[1.5px] p-2 leading-[1.123]">
+          <Text className="font-cp absolute left-0 right-0 top-0 border border-transparent p-2 leading-[1.123]">
             {inputText}
           </Text>
           <TextInput
