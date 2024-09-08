@@ -1,4 +1,8 @@
 import type { Selection } from '@/app'
+import MediaPicker, {
+  type Attachment,
+  highlightColors,
+} from '@/components/timeline/MediaPicker'
 import colors from '@/constants/colors'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -21,8 +25,8 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
-import MediaPicker, { type Attachment, highlightColors } from './MediaPicker'
 
 cssInterop(LinearGradient, {
   className: {
@@ -65,7 +69,7 @@ function GradientBackgroundText({
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      className={'-mr-1 ml-1.5 rounded-lg px-1 ' + className}
+      className={twMerge('-mr-1 ml-1.5 rounded-lg px-1', className)}
       colors={[]}
     >
       <Text className="font-cp text-white">{children}</Text>
@@ -144,16 +148,17 @@ export default function Entry({
             )
           })
 
-          const classes = []
-          if (attachment.start === 0 || value[attachment.start - 1] !== ' ')
-            classes.push('ml-0')
-          if (attachment.end === value.length || value[attachment.end] !== ' ')
-            classes.push('-mr-2.5')
+          const shouldHaveZeroLeftMargin =
+            attachment.start === 0 || value[attachment.start - 1] !== ' '
+          const shouldHaveNegativeRightMargin =
+            attachment.end === value.length || value[attachment.end] !== ' '
+          const classes = twMerge(
+            shouldHaveZeroLeftMargin && 'ml-0',
+            shouldHaveNegativeRightMargin && '-mr-2.5',
+          )
+
           acc.push(
-            <GradientBackgroundText
-              key={`start-${i}`}
-              className={classes.join(' ')}
-            >
+            <GradientBackgroundText key={`start-${i}`} className={classes}>
               {value.slice(attachment.start, attachment.end)}
             </GradientBackgroundText>,
           )
