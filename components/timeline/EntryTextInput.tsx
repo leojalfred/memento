@@ -19,7 +19,7 @@ export const entrySchema = z.object({
 interface EntryTextInputProps {
   value: string
   sortedAttachments: Attachment[]
-  control: Control<z.infer<typeof entrySchema>, any>
+  control: Control<z.infer<typeof entrySchema>>
   setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
   selection: Selection
   setSelection: React.Dispatch<React.SetStateAction<Selection>>

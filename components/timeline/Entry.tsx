@@ -22,6 +22,8 @@ interface EntryProps {
   setSelection: React.Dispatch<React.SetStateAction<Selection>>
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
 export default function Entry({
   isEditing,
   setIsEditing,
@@ -95,11 +97,12 @@ export default function Entry({
 
   return (
     <>
-      <Animated.View style={textAnimation}>
-        <Pressable onPress={() => setIsEditing(true)}>
-          <EntryText value={value} sortedAttachments={sortedAttachments} />
-        </Pressable>
-      </Animated.View>
+      <AnimatedPressable
+        style={textAnimation}
+        onPress={() => setIsEditing(true)}
+      >
+        <EntryText value={value} sortedAttachments={sortedAttachments} />
+      </AnimatedPressable>
       <Animated.View style={inputAnimation}>
         <EntryTextInput
           value={value}
