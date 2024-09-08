@@ -1,5 +1,7 @@
 import type { Selection } from '@/app'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { LinearGradient } from 'expo-linear-gradient'
+import { cssInterop } from 'nativewind'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import {
@@ -18,6 +20,25 @@ import Animated, {
 import colors from 'tailwindcss/colors'
 import { z } from 'zod'
 import MediaPicker, { type Attachment, highlightColors } from './MediaPicker'
+
+cssInterop(LinearGradient, {
+  className: {
+    target: 'style',
+  },
+})
+
+function GradientBackgroundText({ children }: { children: string }) {
+  return (
+    <LinearGradient
+      colors={[colors.violet[500], colors.rose[500]]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      className="ml-2.5"
+    >
+      <Text className="font-cp">{children}</Text>
+    </LinearGradient>
+  )
+}
 
 interface EntryProps {
   isEditing: boolean
@@ -48,8 +69,8 @@ export default function Entry({
     console.log('Attachments:', attachments)
   }, [attachments])
 
-  const textOpacity = useSharedValue(0)
-  const inputOpacity = useSharedValue(1)
+  const textOpacity = useSharedValue(1)
+  const inputOpacity = useSharedValue(0)
   useEffect(() => {
     if (isEditing) {
       textOpacity.value = withTiming(0, { duration: 100 }, () => {
@@ -76,58 +97,43 @@ export default function Entry({
     [attachments],
   )
   const text = useMemo(() => {
-    let result: React.ReactNode[] = []
-    let currentIndex = 0
+    return sortedAttachments.length > 0 ? (
+      <View className="-ml-2.5 flex-row flex-wrap">
+        {sortedAttachments.reduce<React.ReactNode[]>((acc, attachment, i) => {
+          const previousText = value
+            .slice(i > 0 ? sortedAttachments[i - 1].end : 0, attachment.start)
+            .trim()
+          previousText.split(' ').forEach((word, j) => {
+            acc.push(
+              <Text key={`previous-${i}-${j}`} className="font-cp ml-2.5">
+                {word}
+              </Text>,
+            )
+          })
 
-    sortedAttachments.forEach((attachment) => {
-      // Add words before the attachment
-      if (attachment.start > currentIndex) {
-        const beforeAttachment = value
-          .slice(currentIndex, attachment.start)
-          .trim()
-        beforeAttachment.split(' ').forEach((word, index) => {
-          result.push(
-            <Text key={`word-${result.length}`} className="font-cp">
-              {word}{' '}
-            </Text>,
+          acc.push(
+            <GradientBackgroundText key={`start-${i}`}>
+              {value.slice(attachment.start, attachment.end)}
+            </GradientBackgroundText>,
           )
-        })
-      }
 
-      // Add the attachment
-      const attachmentText = value
-        .slice(attachment.start, attachment.end)
-        .trim()
-      result.push(
-        <Text
-          key={`attachment-${result.length}`}
-          className="font-cp bg-violet-300"
-        >
-          {attachmentText}
-        </Text>,
-      )
-      result.push(
-        <Text key={`space-${result.length}`} className="font-cp">
-          {' '}
-        </Text>,
-      )
+          if (i === sortedAttachments.length - 1) {
+            const remainingText = value.slice(attachment.end).trim()
+            remainingText.split(' ').forEach((word, j) => {
+              acc.push(
+                <Text key={`remaining-${i}-${j}`} className="font-cp ml-2.5">
+                  {word}
+                </Text>,
+              )
+            })
+          }
 
-      currentIndex = attachment.end
-    })
-
-    // Add remaining words after the last attachment
-    if (currentIndex < value.length) {
-      const afterLastAttachment = value.slice(currentIndex).trim()
-      afterLastAttachment.split(' ').forEach((word, index) => {
-        result.push(
-          <Text key={`word-${result.length}`} className="font-cp">
-            {word}{' '}
-          </Text>,
-        )
-      })
-    }
-
-    return result
+          return acc
+        }, [])}
+      </View>
+    ) : (
+      <Text className="font-cp">{value}</Text>
+    )
   }, [value, sortedAttachments])
   const inputText = useMemo(() => {
     return sortedAttachments.length > 0
@@ -231,13 +237,8 @@ export default function Entry({
 
   return (
     <>
-      <Animated.View className="font-cp" style={textAnimation}>
-        <Pressable
-          className="flex-row flex-wrap"
-          onPress={() => setIsEditing(true)}
-        >
-          {text}
-        </Pressable>
+      <Animated.View style={textAnimation}>
+        <Pressable onPress={() => setIsEditing(true)}>{text}</Pressable>
       </Animated.View>
       <Animated.View style={inputAnimation}>
         <Controller
