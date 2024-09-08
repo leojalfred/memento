@@ -45,7 +45,7 @@ export default function AttachmentText({
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      className={twMerge('-mr-1 ml-1.5 rounded-lg px-1', className)}
+      className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
       colors={[]}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
