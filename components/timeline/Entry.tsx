@@ -31,12 +31,16 @@ cssInterop(LinearGradient, {
 })
 
 interface GradientBackgroundTextProps {
+  className?: string
   children: string
 }
 
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
-function GradientBackgroundText({ children }: GradientBackgroundTextProps) {
+function GradientBackgroundText({
+  className,
+  children,
+}: GradientBackgroundTextProps) {
   const progress = useSharedValue(0)
   useEffect(() => {
     progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true)
@@ -61,7 +65,7 @@ function GradientBackgroundText({ children }: GradientBackgroundTextProps) {
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      className="-mr-1 ml-1.5 rounded-lg px-1"
+      className={'-mr-1 ml-1.5 rounded-lg px-1 ' + className}
       colors={[]}
     >
       <Text className="font-cp text-white">{children}</Text>
@@ -140,8 +144,16 @@ export default function Entry({
             )
           })
 
+          const classes = []
+          if (attachment.start === 0 || value[attachment.start - 1] !== ' ')
+            classes.push('ml-0')
+          if (attachment.end === value.length || value[attachment.end] !== ' ')
+            classes.push('-mr-2.5')
           acc.push(
-            <GradientBackgroundText key={`start-${i}`}>
+            <GradientBackgroundText
+              key={`start-${i}`}
+              className={classes.join(' ')}
+            >
               {value.slice(attachment.start, attachment.end)}
             </GradientBackgroundText>,
           )
@@ -220,28 +232,8 @@ export default function Entry({
   }
 
   const isMediaPickerShown = useMemo(() => {
-    // Check if selection is not empty
     if (selection.end - selection.start <= 0) return false
 
-    // Find the start and end of the words containing the selection
-    const wordStartIndex = value.lastIndexOf(' ', selection.start - 1) + 1
-    const wordEndIndex =
-      value.indexOf(' ', selection.end) === -1
-        ? value.length
-        : value.indexOf(' ', selection.end)
-
-    // Check if selection covers exactly one word
-    if (selection.start !== wordStartIndex || selection.end !== wordEndIndex) {
-      return false
-    }
-
-    // Check if the selected word doesn't contain any spaces
-    const selectedWord = value.slice(wordStartIndex, wordEndIndex)
-    if (selectedWord.includes(' ')) {
-      return false
-    }
-
-    // Check if selection contains any attachments
     return !attachments.some(
       (attachment) =>
         (attachment.start <= selection.start &&
@@ -250,7 +242,7 @@ export default function Entry({
         (attachment.start >= selection.start &&
           attachment.end <= selection.end),
     )
-  }, [selection, attachments, value])
+  }, [selection, attachments])
   const mediaPickerOpacity = useSharedValue(0)
   useEffect(() => {
     mediaPickerOpacity.value = withTiming(isMediaPickerShown ? 1 : 0, {
