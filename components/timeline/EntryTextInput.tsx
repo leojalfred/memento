@@ -5,11 +5,13 @@ import { useMemo } from 'react'
 import { Control, Controller } from 'react-hook-form'
 import {
   type NativeSyntheticEvent,
+  Platform,
   Text,
   TextInput,
   type TextInputSelectionChangeEventData,
   View,
 } from 'react-native'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 export const entrySchema = z.object({
@@ -86,29 +88,54 @@ export default function EntryTextInput({
     setSelection({ start, end })
   }
 
+  const inputTextClasses = useMemo(() => {
+    return twMerge(
+      'font-cp absolute bottom-px left-px right-px top-[1.5px] p-2 leading-[1.123]',
+      Platform.OS === 'ios' ? 'top-[1.5px]' : 'top-px',
+    )
+  }, [])
+
   return (
     <Controller
       name="text"
       control={control}
       render={({ field: { onChange, value } }) => (
         <View className="relative">
-          <Text className="font-cp absolute left-0 right-0 top-0 border border-transparent p-2 leading-[1.123]">
-            {inputText}
-          </Text>
-          <TextInput
-            className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
-            contextMenuHidden={true}
-            multiline={true}
-            placeholder="Start writing..."
-            selection={selection}
-            selectionColor={colors.gray[500]}
-            value={value}
-            onChangeText={(newText) => {
-              onChange(newText)
-              adjustAttachments(newText, value)
-            }}
-            onSelectionChange={onSelectionChange}
-          />
+          <Text className={inputTextClasses}>{inputText}</Text>
+          {Platform.OS === 'ios' ? (
+            <TextInput
+              className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
+              contextMenuHidden={true}
+              multiline={true}
+              placeholder="Start writing..."
+              scrollEnabled={false}
+              selection={selection}
+              selectionColor={colors.gray[500]}
+              value={value}
+              onChangeText={(newText) => {
+                onChange(newText)
+                adjustAttachments(newText, value)
+              }}
+              onSelectionChange={onSelectionChange}
+            />
+          ) : (
+            <View className="mb-4 rounded-lg border border-gray-700 p-2">
+              <TextInput
+                className="font-cp leading-[1.123] text-transparent"
+                contextMenuHidden={true}
+                multiline={true}
+                placeholder="Start writing..."
+                selection={selection}
+                selectionColor="rgba(107, 114, 128, 0.3)"
+                value={value}
+                onChangeText={(newText) => {
+                  onChange(newText)
+                  adjustAttachments(newText, value)
+                }}
+                onSelectionChange={onSelectionChange}
+              />
+            </View>
+          )}
         </View>
       )}
     />

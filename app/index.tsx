@@ -1,6 +1,11 @@
 import Entry from '@/components/timeline/Entry'
 import { useState } from 'react'
-import { Pressable, ScrollView } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 export interface Selection {
@@ -15,17 +20,22 @@ export default function TimelineScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Pressable onPress={() => setIsEditing(false)} style={{ flex: 1 }}>
-        <ScrollView
-          contentContainerStyle={{ padding: 16 }}
-          keyboardShouldPersistTaps="handled"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 46 : 24}
         >
-          <Entry
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            selection={selection}
-            setSelection={setSelection}
-          />
-        </ScrollView>
+          <ScrollView
+            contentContainerStyle={{ padding: 16 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Entry
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              selection={selection}
+              setSelection={setSelection}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
       </Pressable>
     </SafeAreaView>
   )
