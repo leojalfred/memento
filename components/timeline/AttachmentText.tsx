@@ -1,10 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { cssInterop } from 'nativewind'
 import { useEffect } from 'react'
-import { Text } from 'react-native'
+import { Platform, Text } from 'react-native'
 import Animated, {
   interpolateColor,
   useAnimatedProps,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -33,14 +34,18 @@ export default function AttachmentText({
   useEffect(() => {
     progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true)
   }, [progress])
+
   const animatedColors = useAnimatedProps(() => ({
     colors: [
       interpolateColor(progress.value, [0, 1], colorPair),
       interpolateColor(progress.value, [0, 1], colorPair.toReversed()),
     ],
   }))
+  const animatedBackgroundColor = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(progress.value, [0, 1], colorPair),
+  }))
 
-  return (
+  return Platform.OS === 'ios' ? (
     <AnimatedLinearGradient
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
@@ -50,5 +55,12 @@ export default function AttachmentText({
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
     </AnimatedLinearGradient>
+  ) : (
+    <Animated.View
+      style={animatedBackgroundColor}
+      className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
+    >
+      <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
+    </Animated.View>
   )
 }

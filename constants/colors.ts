@@ -4,7 +4,8 @@ import resolveConfig from 'tailwindcss/resolveConfig'
 const config = resolveConfig(tailwindConfig)
 export const colors = config.theme.colors
 
-export const colorPairs: [string, string][] = [
+export const iosColorPairs: [string, string][] = [
+  [colors.slate[600], colors.stone[300]],
   [colors.red[600], colors.orange[300]],
   [colors.orange[600], colors.amber[300]],
   [colors.amber[600], colors.yellow[300]],
@@ -21,7 +22,7 @@ export const colorPairs: [string, string][] = [
   [colors.fuchsia[600], colors.pink[300]],
   [colors.pink[600], colors.rose[300]],
   [colors.rose[600], colors.red[300]],
-  [colors.slate[600], colors.stone[300]],
+  [colors.stone[600], colors.slate[300]],
   [colors.orange[600], colors.red[300]],
   [colors.amber[600], colors.orange[300]],
   [colors.yellow[600], colors.amber[300]],
@@ -38,5 +39,23 @@ export const colorPairs: [string, string][] = [
   [colors.pink[600], colors.fuchsia[300]],
   [colors.rose[600], colors.pink[300]],
   [colors.red[600], colors.rose[300]],
-  [colors.stone[600], colors.slate[300]],
+]
+export const androidColorPairs: [string, string][] = [
+  [colors.slate[600], colors.slate[400]],
+  [colors.red[600], colors.red[400]],
+  [colors.orange[600], colors.orange[400]],
+  [colors.amber[600], colors.amber[400]],
+  [colors.lime[600], colors.lime[400]],
+  [colors.green[600], colors.green[400]],
+  [colors.emerald[600], colors.emerald[400]],
+  [colors.teal[600], colors.teal[400]],
+  [colors.cyan[600], colors.cyan[400]],
+  [colors.sky[600], colors.sky[400]],
+  [colors.blue[600], colors.blue[400]],
+  [colors.indigo[600], colors.indigo[400]],
+  [colors.violet[600], colors.violet[400]],
+  [colors.purple[600], colors.purple[400]],
+  [colors.fuchsia[600], colors.fuchsia[400]],
+  [colors.pink[600], colors.pink[400]],
+  [colors.rose[600], colors.rose[400]],
 ]

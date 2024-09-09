@@ -1,11 +1,11 @@
 import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
-import { colors } from '@/constants/colors'
+import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, Platform, View } from 'react-native'
 import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   useAnimatedStyle,
@@ -17,7 +17,7 @@ export interface Attachment {
   start: number
   end: number
   uri: string
-  colorPairIndex: number
+  colorPair: [string, string]
 }
 
 interface MediaPickerProps {
@@ -32,13 +32,20 @@ export default function MediaPicker({
   const [isLoading, setIsLoading] = useState(false)
   const pushAttachment = useCallback(
     (uri: string) => {
+      const colorPair =
+        Platform.OS === 'ios'
+          ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
+          : androidColorPairs[
+              Math.floor(Math.random() * androidColorPairs.length)
+            ]
+
       setAttachments((attachments) => [
         ...attachments,
         {
           start: selection.start,
           end: selection.end,
           uri,
-          colorPairIndex: Math.floor(Math.random() * 34),
+          colorPair,
         },
       ])
     },

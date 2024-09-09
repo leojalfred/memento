@@ -1,6 +1,5 @@
 import AttachmentText from '@/components/timeline/AttachmentText'
 import { type Attachment } from '@/components/timeline/MediaPicker'
-import { colorPairs } from '@/constants/colors'
 import { useMemo } from 'react'
 import { Text, View } from 'react-native'
 import { twMerge } from 'tailwind-merge'
@@ -48,12 +47,11 @@ export default function EntryText({
               '-mr-2.5',
           )
 
-          const colorPair = colorPairs[attachment.colorPairIndex]
           acc.push(
             <AttachmentText
               key={`attachment-${i}`}
               className={classes}
-              colorPair={colorPair}
+              colorPair={attachment.colorPair}
             >
               {value
                 .slice(attachment.start, attachment.end)
