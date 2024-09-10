@@ -15,7 +15,7 @@ export default function EntryText({
 }: EntryTextProps) {
   return useMemo(() => {
     return sortedAttachments.length > 0 ? (
-      <View className="-ml-2.5 flex-row flex-wrap items-end">
+      <View className="-ml-2.5 flex-row flex-wrap">
         {sortedAttachments.reduce<React.ReactNode[]>((acc, attachment, i) => {
           const previousText = value
             .slice(i > 0 ? sortedAttachments[i - 1].end : 0, attachment.start)
@@ -56,12 +56,9 @@ export default function EntryText({
               {value
                 .slice(attachment.start, attachment.end)
                 .split(/(\p{Emoji_Presentation})/u)
-                .map((part, k) =>
+                .map((part, j) =>
                   part.match(/\p{Emoji_Presentation}/u) ? (
-                    <Text
-                      key={`attachment-emoji-${k}`}
-                      className="text-[0.75rem]"
-                    >
+                    <Text key={`emoji-${i}-${j}`} className="text-[0.75rem]">
                       {part}
                     </Text>
                   ) : (
