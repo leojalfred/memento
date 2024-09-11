@@ -1,20 +1,57 @@
+import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
+import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { useCallback, useEffect, useState } from 'react'
+import { ActivityIndicator, Platform, View } from 'react-native'
 import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-import colors from 'tailwindcss/colors'
 
-export default function MediaPicker() {
+export interface Attachment {
+  start: number
+  end: number
+  uri: string
+  colorPair: [string, string]
+}
+
+interface MediaPickerProps {
+  selection: Selection
+  setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
+}
+
+export default function MediaPicker({
+  selection,
+  setAttachments,
+}: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [media, setMedia] = useState<string | null>(null)
+  const pushAttachment = useCallback(
+    (uri: string) => {
+      const colorPair =
+        Platform.OS === 'ios'
+          ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
+          : androidColorPairs[
+              Math.floor(Math.random() * androidColorPairs.length)
+            ]
+
+      setAttachments((attachments) => [
+        ...attachments,
+        {
+          start: selection.start,
+          end: selection.end,
+          uri,
+          colorPair,
+        },
+      ])
+    },
+    [setAttachments, selection.start, selection.end],
+  )
+
   const pickMedia = async (type: 'image' | 'video') => {
     setIsLoading(true)
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -25,8 +62,10 @@ export default function MediaPicker() {
     })
 
     if (!result.canceled) {
-      setMedia(result.assets[0].uri)
-      console.log(result.assets[0].uri)
+      const uri = result.assets[0].uri
+      pushAttachment(uri)
+
+      console.log('Media loaded and stored at', uri)
     }
     setIsLoading(false)
   }
@@ -65,13 +104,18 @@ export default function MediaPicker() {
   }
   async function stopRecording() {
     console.log('Stopping recording..')
+
     setRecording(undefined)
     await recording?.stopAndUnloadAsync()
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
     })
+
     const uri = recording?.getURI()
-    console.log('Recording stopped and stored at', uri)
+    if (uri) {
+      pushAttachment(uri)
+      console.log('Recording stopped and stored at', uri)
+    }
   }
 
   const mediaPickerWidth = useSharedValue(148)
@@ -155,7 +199,7 @@ export default function MediaPicker() {
         />
       </Animated.View>
       <Animated.View style={loaderAnimation}>
-        <ActivityIndicator size="small" color="#374151" />
+        <ActivityIndicator size="small" color={colors.gray[700]} />
       </Animated.View>
     </View>
   )
