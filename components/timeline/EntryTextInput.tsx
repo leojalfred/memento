@@ -100,7 +100,7 @@ export default function EntryTextInput({
       name="text"
       control={control}
       render={({ field: { onChange, value } }) => (
-        <View className="relative">
+        <>
           <Text className={inputTextClasses}>{inputText}</Text>
           {Platform.OS === 'ios' ? (
             <TextInput
@@ -136,7 +136,7 @@ export default function EntryTextInput({
               />
             </View>
           )}
-        </View>
+        </>
       )}
     />
   )
