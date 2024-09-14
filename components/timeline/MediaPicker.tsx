@@ -23,11 +23,13 @@ export interface Attachment {
 interface MediaPickerProps {
   selection: Selection
   setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
+  disabled: boolean
 }
 
 export default function MediaPicker({
   selection,
   setAttachments,
+  disabled,
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
   const pushAttachment = useCallback(
@@ -180,9 +182,17 @@ export default function MediaPicker({
         style={mediaPickerAnimation}
       >
         <Animated.View className="flex-row" style={nonAudioAnimation}>
-          <IconButton icon="image" onPress={() => pickMedia('image')} />
+          <IconButton
+            icon="image"
+            onPress={() => pickMedia('image')}
+            disabled={disabled}
+          />
           <Divider />
-          <IconButton icon="video" onPress={() => pickMedia('video')} />
+          <IconButton
+            icon="video"
+            onPress={() => pickMedia('video')}
+            disabled={disabled}
+          />
           <Divider />
         </Animated.View>
         <Animated.View style={waveAnimation}>
@@ -196,6 +206,7 @@ export default function MediaPicker({
         <IconButton
           icon={recording ? 'stop-circle' : 'mic'}
           onPress={recording ? stopRecording : startRecording}
+          disabled={disabled}
         />
       </Animated.View>
       <Animated.View style={loaderAnimation}>

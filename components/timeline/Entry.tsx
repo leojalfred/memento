@@ -112,7 +112,11 @@ export default function Entry({
           setSelection={setSelection}
         />
         <Animated.View style={mediaPickerAnimation}>
-          <MediaPicker selection={selection} setAttachments={setAttachments} />
+          <MediaPicker
+            selection={selection}
+            setAttachments={setAttachments}
+            disabled={!isMediaPickerShown}
+          />
         </Animated.View>
       </Animated.View>
     </>
