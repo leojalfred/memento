@@ -71,12 +71,16 @@ export default function Attachment({
 
   const [textWidth, setTextWidth] = useState<number>()
   const text = value.slice(attachment.start, attachment.end)
-  const aspectRatio = attachment.width! / attachment.height!
-  const top =
-    -((width / attachment.width!) * attachment.height! * 0.5) + 8.5 - padding
-  const left = textWidth
-    ? -width / 2 + textWidth / 2 + 5.25 - padding
-    : undefined
+  let aspectRatio = null
+  let top = null
+  let left = null
+
+  if (attachment.type === 'image') {
+    aspectRatio = attachment.width! / attachment.height!
+    top =
+      -((width / attachment.width!) * attachment.height! * 0.5) + 8.5 - padding
+    left = textWidth ? -width / 2 + textWidth / 2 + 5.25 - padding : undefined
+  }
 
   const styles = useMemo(
     () =>
@@ -99,7 +103,7 @@ export default function Attachment({
         source={{ uri: attachment.uri }}
         accessibilityLabel={text}
         style={{
-          aspectRatio,
+          aspectRatio: aspectRatio!,
           width,
           borderRadius,
         }}
