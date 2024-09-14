@@ -21,7 +21,7 @@ interface AttachmentProps {
   sortedAttachments: AttachmentData[]
 }
 
-const width = 100
+const width = 128
 const padding = 4
 const borderRadius = 8
 
@@ -101,7 +101,7 @@ export default function Attachment({
     media = (
       <Image
         source={{ uri: attachment.uri }}
-        accessibilityLabel={text}
+        alt={text}
         style={{
           aspectRatio: aspectRatio!,
           width,
