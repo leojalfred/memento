@@ -1,5 +1,4 @@
-import { LinearGradient } from 'expo-linear-gradient'
-import { cssInterop } from 'nativewind'
+import AnimatedGradient from '@/components/AnimatedGradient'
 import { useEffect } from 'react'
 import { Platform, Text } from 'react-native'
 import Animated, {
@@ -18,13 +17,6 @@ interface AttachmentTextProps {
   setTextWidth: React.Dispatch<React.SetStateAction<number | undefined>>
   children: React.ReactNode
 }
-
-cssInterop(LinearGradient, {
-  className: {
-    target: 'style',
-  },
-})
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 
 export default function AttachmentText({
   className,
@@ -48,7 +40,7 @@ export default function AttachmentText({
   }))
 
   return Platform.OS === 'ios' ? (
-    <AnimatedLinearGradient
+    <AnimatedGradient
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
@@ -57,7 +49,7 @@ export default function AttachmentText({
       onLayout={(event) => setTextWidth(event.nativeEvent.layout.width)}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
-    </AnimatedLinearGradient>
+    </AnimatedGradient>
   ) : (
     <Animated.View
       style={animatedBackgroundColor}
