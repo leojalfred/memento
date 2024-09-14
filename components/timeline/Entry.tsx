@@ -3,7 +3,9 @@ import EntryText from '@/components/timeline/EntryText'
 import EntryTextInput, {
   entrySchema,
 } from '@/components/timeline/EntryTextInput'
-import MediaPicker, { type Attachment } from '@/components/timeline/MediaPicker'
+import MediaPicker, {
+  type AttachmentData,
+} from '@/components/timeline/MediaPicker'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -37,7 +39,7 @@ export default function Entry({
     },
   })
 
-  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [attachments, setAttachments] = useState<AttachmentData[]>([])
   useEffect(() => {
     console.log('Attachments:', attachments)
   }, [attachments])

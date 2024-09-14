@@ -13,7 +13,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
-export interface Attachment {
+export interface AttachmentData {
   start: number
   end: number
   uri: string
@@ -22,7 +22,7 @@ export interface Attachment {
 
 interface MediaPickerProps {
   selection: Selection
-  setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
+  setAttachments: React.Dispatch<React.SetStateAction<AttachmentData[]>>
   disabled: boolean
 }
 

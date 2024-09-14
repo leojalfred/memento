@@ -1,5 +1,5 @@
 import type { Selection } from '@/app'
-import { type Attachment } from '@/components/timeline/MediaPicker'
+import { type AttachmentData } from '@/components/timeline/MediaPicker'
 import { colors } from '@/constants/colors'
 import { useMemo } from 'react'
 import { Control, Controller } from 'react-hook-form'
@@ -20,9 +20,9 @@ export const entrySchema = z.object({
 
 interface EntryTextInputProps {
   value: string
-  sortedAttachments: Attachment[]
+  sortedAttachments: AttachmentData[]
   control: Control<z.infer<typeof entrySchema>>
-  setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
+  setAttachments: React.Dispatch<React.SetStateAction<AttachmentData[]>>
   selection: Selection
   setSelection: React.Dispatch<React.SetStateAction<Selection>>
 }
