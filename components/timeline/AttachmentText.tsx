@@ -1,18 +1,16 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
-import { useEffect } from 'react'
 import { Platform, Text } from 'react-native'
-import Animated, {
-  interpolateColor,
-  useAnimatedProps,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated'
+import Animated from 'react-native-reanimated'
 import { twMerge } from 'tailwind-merge'
 
 interface AttachmentTextProps {
   className?: string
+  animatedColors: Partial<{
+    colors: string[]
+  }>
+  animatedBackgroundColor: {
+    backgroundColor: string
+  }
   colorPair: [string, string]
   setTextWidth: React.Dispatch<React.SetStateAction<number | undefined>>
   children: React.ReactNode
@@ -20,25 +18,12 @@ interface AttachmentTextProps {
 
 export default function AttachmentText({
   className,
+  animatedColors,
+  animatedBackgroundColor,
   colorPair,
   setTextWidth,
   children,
 }: AttachmentTextProps) {
-  const progress = useSharedValue(0)
-  useEffect(() => {
-    progress.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true)
-  }, [progress])
-
-  const animatedColors = useAnimatedProps(() => ({
-    colors: [
-      interpolateColor(progress.value, [0, 1], colorPair),
-      interpolateColor(progress.value, [0, 1], colorPair.toReversed()),
-    ],
-  }))
-  const animatedBackgroundColor = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(progress.value, [0, 1], colorPair),
-  }))
-
   return Platform.OS === 'ios' ? (
     <AnimatedGradient
       animatedProps={animatedColors}
