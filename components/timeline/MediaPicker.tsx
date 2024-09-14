@@ -26,7 +26,7 @@ export default function MediaPicker({
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
   const pushAttachment = useCallback(
-    (type: AttachmentType, uri: string) => {
+    (type: AttachmentType, uri: string, height?: number, width?: number) => {
       const colorPair =
         Platform.OS === 'ios'
           ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
@@ -41,6 +41,8 @@ export default function MediaPicker({
           end: selection.end,
           type,
           uri,
+          height,
+          width,
           colorPair,
         },
       ])
@@ -58,8 +60,8 @@ export default function MediaPicker({
     })
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri
-      pushAttachment(type, uri)
+      const { uri, height, width } = result.assets[0]
+      pushAttachment(type, uri, height, width)
 
       console.log('Media loaded and stored at', uri)
     }

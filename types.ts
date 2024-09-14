@@ -9,5 +9,7 @@ export interface AttachmentData {
   end: number
   type: AttachmentType
   uri: string
+  height?: number
+  width?: number
   colorPair: [string, string]
 }

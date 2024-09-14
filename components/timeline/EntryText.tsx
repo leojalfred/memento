@@ -23,7 +23,7 @@ export default function EntryText({
             acc.push(
               <Text
                 key={`previous-${i}-${j}`}
-                className="font-cp ml-2.5 leading-[1.3125]"
+                className="font-cp -z-[1] ml-2.5 leading-[1.3125]"
               >
                 {word}
               </Text>,
@@ -46,7 +46,7 @@ export default function EntryText({
               acc.push(
                 <Text
                   key={`remaining-${i}-${j}`}
-                  className="font-cp ml-2.5 leading-[1.3125]"
+                  className="font-cp -z-[1] ml-2.5 leading-[1.3125]"
                 >
                   {word}
                 </Text>,

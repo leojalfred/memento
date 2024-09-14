@@ -98,6 +98,7 @@ export default function Entry({
     <>
       <AnimatedPressable
         style={textAnimation}
+        className="flex-1"
         onPress={() => setIsEditing(true)}
       >
         <EntryText value={value} sortedAttachments={sortedAttachments} />

@@ -1,5 +1,7 @@
 import AttachmentText from '@/components/timeline/AttachmentText'
 import type { AttachmentData } from '@/types'
+import { Image } from 'expo-image'
+import { useState } from 'react'
 import { Text, View } from 'react-native'
 import { twMerge } from 'tailwind-merge'
 
@@ -9,6 +11,8 @@ interface AttachmentProps {
   attachment: AttachmentData
   sortedAttachments: AttachmentData[]
 }
+
+const width = 100
 
 export default function Attachment({
   i,
@@ -32,22 +36,44 @@ export default function Attachment({
       '-mr-2.5',
   )
 
+  const [textWidth, setTextWidth] = useState<number>()
+
+  const text = value.slice(attachment.start, attachment.end)
+  const aspectRatio = attachment.width! / attachment.height!
+  const top = -((width / attachment.width!) * attachment.height! * 0.5) + 8.5
+  const left = textWidth ? -width / 2 + textWidth / 2 + 5.25 : undefined
+
   return (
     <View key={`attachment-${i}`}>
-      <AttachmentText className={classes} colorPair={attachment.colorPair}>
-        {value
-          .slice(attachment.start, attachment.end)
-          .split(/(\p{Emoji_Presentation})/u)
-          .map((part, j) =>
-            part.match(/\p{Emoji_Presentation}/u) ? (
-              <Text key={`emoji-${i}-${j}`} className="text-[0.75rem]">
-                {part}
-              </Text>
-            ) : (
-              part
-            ),
-          )}
+      <AttachmentText
+        className={classes}
+        colorPair={attachment.colorPair}
+        setTextWidth={setTextWidth}
+      >
+        {text.split(/(\p{Emoji_Presentation})/u).map((part, j) =>
+          part.match(/\p{Emoji_Presentation}/u) ? (
+            <Text key={`emoji-${i}-${j}`} className="text-[0.75rem]">
+              {part}
+            </Text>
+          ) : (
+            part
+          ),
+        )}
       </AttachmentText>
+      {attachment.type === 'image' && (
+        <Image
+          source={{ uri: attachment.uri }}
+          accessibilityLabel={text}
+          style={{
+            position: 'absolute',
+            aspectRatio,
+            width,
+            top,
+            left,
+            borderRadius: 8,
+          }}
+        />
+      )}
     </View>
   )
 }

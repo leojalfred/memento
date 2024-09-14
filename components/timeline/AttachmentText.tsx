@@ -15,6 +15,7 @@ import { twMerge } from 'tailwind-merge'
 interface AttachmentTextProps {
   className?: string
   colorPair: [string, string]
+  setTextWidth: React.Dispatch<React.SetStateAction<number | undefined>>
   children: React.ReactNode
 }
 
@@ -28,6 +29,7 @@ const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient)
 export default function AttachmentText({
   className,
   colorPair,
+  setTextWidth,
   children,
 }: AttachmentTextProps) {
   const progress = useSharedValue(0)
@@ -52,6 +54,7 @@ export default function AttachmentText({
       end={{ x: 1, y: 0 }}
       className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
       colors={colorPair}
+      onLayout={(event) => setTextWidth(event.nativeEvent.layout.width)}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
     </AnimatedLinearGradient>
@@ -59,6 +62,7 @@ export default function AttachmentText({
     <Animated.View
       style={animatedBackgroundColor}
       className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
+      onLayout={(event) => setTextWidth(event.nativeEvent.layout.width)}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
     </Animated.View>

@@ -19,9 +19,13 @@ export default function TimelineScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 46 : 24}
+          className="flex-1"
         >
           <ScrollView
-            contentContainerStyle={{ padding: 16 }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              padding: 16,
+            }}
             keyboardShouldPersistTaps="handled"
           >
             <Entry
