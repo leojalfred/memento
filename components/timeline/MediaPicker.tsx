@@ -1,7 +1,7 @@
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
-import type { AttachmentData, Selection } from '@/types'
+import type { AttachmentData, AttachmentType, Selection } from '@/types'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
@@ -26,7 +26,7 @@ export default function MediaPicker({
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
   const pushAttachment = useCallback(
-    (uri: string) => {
+    (type: AttachmentType, uri: string) => {
       const colorPair =
         Platform.OS === 'ios'
           ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
@@ -39,6 +39,7 @@ export default function MediaPicker({
         {
           start: selection.start,
           end: selection.end,
+          type,
           uri,
           colorPair,
         },
@@ -58,7 +59,7 @@ export default function MediaPicker({
 
     if (!result.canceled) {
       const uri = result.assets[0].uri
-      pushAttachment(uri)
+      pushAttachment(type, uri)
 
       console.log('Media loaded and stored at', uri)
     }
@@ -108,7 +109,7 @@ export default function MediaPicker({
 
     const uri = recording?.getURI()
     if (uri) {
-      pushAttachment(uri)
+      pushAttachment('audio', uri)
       console.log('Recording stopped and stored at', uri)
     }
   }
