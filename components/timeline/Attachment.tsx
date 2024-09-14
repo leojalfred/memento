@@ -41,7 +41,7 @@ export default function Attachment({
   const text = value.slice(attachment.start, attachment.end)
   const aspectRatio = attachment.width! / attachment.height!
   const top = -((width / attachment.width!) * attachment.height! * 0.5) + 8.5
-  const left = textWidth ? -width / 2 + textWidth / 2 + 5.25 : undefined
+  const left = textWidth ? -width / 2 + textWidth / 2 : undefined
 
   return (
     <View key={`attachment-${i}`}>
