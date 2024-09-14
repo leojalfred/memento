@@ -1,5 +1,5 @@
 import AttachmentText from '@/components/timeline/AttachmentText'
-import type { AttachmentData } from '@/components/timeline/MediaPicker'
+import type { AttachmentData } from '@/types'
 import { Text, View } from 'react-native'
 import { twMerge } from 'tailwind-merge'
 

@@ -1,6 +1,5 @@
-import type { Selection } from '@/app'
-import { type AttachmentData } from '@/components/timeline/MediaPicker'
 import { colors } from '@/constants/colors'
+import type { AttachmentData, Selection } from '@/types'
 import { useMemo } from 'react'
 import { Control, Controller } from 'react-hook-form'
 import {

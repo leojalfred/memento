@@ -1,7 +1,7 @@
-import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
+import type { AttachmentData, Selection } from '@/types'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
@@ -12,13 +12,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated'
-
-export interface AttachmentData {
-  start: number
-  end: number
-  uri: string
-  colorPair: [string, string]
-}
 
 interface MediaPickerProps {
   selection: Selection

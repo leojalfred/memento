@@ -1,11 +1,9 @@
-import type { Selection } from '@/app'
 import EntryText from '@/components/timeline/EntryText'
 import EntryTextInput, {
   entrySchema,
 } from '@/components/timeline/EntryTextInput'
-import MediaPicker, {
-  type AttachmentData,
-} from '@/components/timeline/MediaPicker'
+import MediaPicker from '@/components/timeline/MediaPicker'
+import type { AttachmentData, Selection } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'

@@ -1,4 +1,4 @@
-import type { AttachmentData } from '@/components/timeline/MediaPicker'
+import type { AttachmentData } from '@/types'
 import { useMemo } from 'react'
 import { Text, View } from 'react-native'
 import Attachment from './Attachment'
