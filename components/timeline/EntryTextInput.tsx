@@ -1,10 +1,11 @@
 import { colors } from '@/constants/colors'
 import type { AttachmentData, Selection } from '@/types'
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Control, Controller } from 'react-hook-form'
 import {
   type NativeSyntheticEvent,
   Platform,
+  Pressable,
   Text,
   TextInput,
   type TextInputSelectionChangeEventData,
@@ -34,6 +35,16 @@ export default function EntryTextInput({
   selection,
   setSelection,
 }: EntryTextInputProps) {
+  const [pointerEvents, setPointerEvents] = useState<'none' | 'auto'>('none')
+  const textInputRef = useRef<TextInput>(null)
+
+  const inputTextClasses = useMemo(() => {
+    return twMerge(
+      'font-cp absolute bottom-px left-px right-px top-[1.5px] p-2 leading-[1.123] text-zinc-900 dark:text-zinc-100',
+      Platform.OS === 'ios' ? 'top-[1.5px]' : 'top-px',
+    )
+  }, [])
+
   const inputText = useMemo(() => {
     return sortedAttachments.length > 0
       ? sortedAttachments.reduce<React.ReactNode[]>(
@@ -87,56 +98,62 @@ export default function EntryTextInput({
     setSelection({ start, end })
   }
 
-  const inputTextClasses = useMemo(() => {
-    return twMerge(
-      'font-cp absolute bottom-px left-px right-px top-[1.5px] p-2 leading-[1.123] text-zinc-900 dark:text-zinc-100',
-      Platform.OS === 'ios' ? 'top-[1.5px]' : 'top-px',
-    )
-  }, [])
-
   return (
-    <Controller
-      name="text"
-      control={control}
-      render={({ field: { onChange, value } }) => (
-        <>
-          <Text className={inputTextClasses}>{inputText}</Text>
-          {Platform.OS === 'ios' ? (
-            <TextInput
-              className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent dark:border-gray-300"
-              contextMenuHidden={true}
-              multiline={true}
-              placeholder="Start writing..."
-              scrollEnabled={false}
-              selection={selection}
-              selectionColor={colors.gray[500]}
-              value={value}
-              onChangeText={(newText) => {
-                onChange(newText)
-                adjustAttachments(newText, value)
-              }}
-              onSelectionChange={onSelectionChange}
-            />
-          ) : (
-            <View className="mb-4 rounded-lg border border-gray-700 p-2 dark:border-gray-300">
+    <Pressable
+      onPress={() => {
+        setPointerEvents('auto')
+        textInputRef.current?.focus()
+      }}
+    >
+      <Controller
+        name="text"
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <>
+            <Text className={inputTextClasses}>{inputText}</Text>
+            {Platform.OS === 'ios' ? (
               <TextInput
-                className="font-cp leading-[1.123] text-transparent"
+                ref={textInputRef}
+                className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent dark:border-gray-300"
                 contextMenuHidden={true}
                 multiline={true}
                 placeholder="Start writing..."
+                pointerEvents={pointerEvents}
+                scrollEnabled={false}
                 selection={selection}
-                selectionColor="rgba(107, 114, 128, 0.3)"
+                selectionColor={colors.gray[500]}
                 value={value}
+                onBlur={() => setPointerEvents('none')}
                 onChangeText={(newText) => {
                   onChange(newText)
                   adjustAttachments(newText, value)
                 }}
                 onSelectionChange={onSelectionChange}
               />
-            </View>
-          )}
-        </>
-      )}
-    />
+            ) : (
+              <View className="mb-4 rounded-lg border border-gray-700 p-2 dark:border-gray-300">
+                <TextInput
+                  ref={textInputRef}
+                  className="font-cp leading-[1.123] text-transparent"
+                  contextMenuHidden={true}
+                  multiline={true}
+                  placeholder="Start writing..."
+                  pointerEvents={pointerEvents}
+                  selection={selection}
+                  selectionColor="rgba(107, 114, 128, 0.3)"
+                  value={value}
+                  onBlur={() => setPointerEvents('none')}
+                  onChangeText={(newText) => {
+                    onChange(newText)
+                    adjustAttachments(newText, value)
+                  }}
+                  onSelectionChange={onSelectionChange}
+                />
+              </View>
+            )}
+          </>
+        )}
+      />
+    </Pressable>
   )
 }
