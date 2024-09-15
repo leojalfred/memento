@@ -1,6 +1,10 @@
 name: Lint and Test Upon Push
 run-name: Linting and Testing ${{ github.ref_name }}
 on: [push]
+permissions:
+  contents: read
+  actions: read
+  checks: write
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -11,7 +15,7 @@ jobs:
         run: bun install
       - name: Lint codebase
         run: bun run lint
-      - name: Run test
+      - name: Run tests
         run: bun run test:ci
       - name: Report test results
         uses: dorny/test-reporter@v1
