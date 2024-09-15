@@ -1,14 +1,15 @@
 name: Lint and Test Upon Push
-run-name: Linting and Testing ${{ github.ref }}
+run-name: Linting and Testing ${{ github.ref_name }}
 on: [push]
-env:
-  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
-      - run: bun run lint
-      - run: bun run test:ci
+      - name: Install Dependencies
+        run: bun install
+      - name: Lint Codebase
+        run: bun run lint
+      - name: Run Test
+        run: bun run test:ci
