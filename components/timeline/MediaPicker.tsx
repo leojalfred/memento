@@ -1,7 +1,8 @@
-import type { Selection } from '@/app'
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
+import type { AttachmentData, AttachmentType, Selection } from '@/types'
+import { yap } from '@/utils/logging'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
@@ -13,25 +14,20 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
-export interface Attachment {
-  start: number
-  end: number
-  uri: string
-  colorPair: [string, string]
-}
-
 interface MediaPickerProps {
   selection: Selection
-  setAttachments: React.Dispatch<React.SetStateAction<Attachment[]>>
+  setAttachments: React.Dispatch<React.SetStateAction<AttachmentData[]>>
+  disabled: boolean
 }
 
 export default function MediaPicker({
   selection,
   setAttachments,
+  disabled,
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
   const pushAttachment = useCallback(
-    (uri: string) => {
+    (type: AttachmentType, uri: string, height?: number, width?: number) => {
       const colorPair =
         Platform.OS === 'ios'
           ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
@@ -44,7 +40,10 @@ export default function MediaPicker({
         {
           start: selection.start,
           end: selection.end,
+          type,
           uri,
+          height,
+          width,
           colorPair,
         },
       ])
@@ -62,10 +61,10 @@ export default function MediaPicker({
     })
 
     if (!result.canceled) {
-      const uri = result.assets[0].uri
-      pushAttachment(uri)
+      const { uri, height, width } = result.assets[0]
+      pushAttachment(type, uri, height, width)
 
-      console.log('Media loaded and stored at', uri)
+      yap('Media loaded and stored at', uri)
     }
     setIsLoading(false)
   }
@@ -84,7 +83,7 @@ export default function MediaPicker({
   async function startRecording() {
     try {
       if (permissionResponse?.status !== 'granted') {
-        console.log('Requesting permission..')
+        yap('Requesting permission..')
         await requestPermission()
       }
       await Audio.setAudioModeAsync({
@@ -92,18 +91,18 @@ export default function MediaPicker({
         playsInSilentModeIOS: true,
       })
 
-      console.log('Starting recording..')
+      yap('Starting recording..')
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
       )
       setRecording(recording)
-      console.log('Recording started')
+      yap('Recording started')
     } catch (err) {
       console.error('Failed to start recording', err)
     }
   }
   async function stopRecording() {
-    console.log('Stopping recording..')
+    yap('Stopping recording..')
 
     setRecording(undefined)
     await recording?.stopAndUnloadAsync()
@@ -113,8 +112,8 @@ export default function MediaPicker({
 
     const uri = recording?.getURI()
     if (uri) {
-      pushAttachment(uri)
-      console.log('Recording stopped and stored at', uri)
+      pushAttachment('audio', uri)
+      yap('Recording stopped and stored at', uri)
     }
   }
 
@@ -180,9 +179,17 @@ export default function MediaPicker({
         style={mediaPickerAnimation}
       >
         <Animated.View className="flex-row" style={nonAudioAnimation}>
-          <IconButton icon="image" onPress={() => pickMedia('image')} />
+          <IconButton
+            icon="image"
+            onPress={() => pickMedia('image')}
+            disabled={disabled}
+          />
           <Divider />
-          <IconButton icon="video" onPress={() => pickMedia('video')} />
+          <IconButton
+            icon="video"
+            onPress={() => pickMedia('video')}
+            disabled={disabled}
+          />
           <Divider />
         </Animated.View>
         <Animated.View style={waveAnimation}>
@@ -196,6 +203,7 @@ export default function MediaPicker({
         <IconButton
           icon={recording ? 'stop-circle' : 'mic'}
           onPress={recording ? stopRecording : startRecording}
+          disabled={disabled}
         />
       </Animated.View>
       <Animated.View style={loaderAnimation}>

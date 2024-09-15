@@ -1,9 +1,9 @@
-import type { Selection } from '@/app'
 import EntryText from '@/components/timeline/EntryText'
 import EntryTextInput, {
   entrySchema,
 } from '@/components/timeline/EntryTextInput'
-import MediaPicker, { type Attachment } from '@/components/timeline/MediaPicker'
+import MediaPicker from '@/components/timeline/MediaPicker'
+import type { AttachmentData, Selection } from '@/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -37,11 +37,6 @@ export default function Entry({
     },
   })
 
-  const [attachments, setAttachments] = useState<Attachment[]>([])
-  useEffect(() => {
-    console.log('Attachments:', attachments)
-  }, [attachments])
-
   const textOpacity = useSharedValue(1)
   const inputOpacity = useSharedValue(0)
   useEffect(() => {
@@ -65,6 +60,7 @@ export default function Entry({
   }))
 
   const value = getValues('text')
+  const [attachments, setAttachments] = useState<AttachmentData[]>([])
   const sortedAttachments = useMemo(
     () => [...attachments].sort((a, b) => a.end - b.end),
     [attachments],
@@ -98,6 +94,7 @@ export default function Entry({
     <>
       <AnimatedPressable
         style={textAnimation}
+        className="flex-1"
         onPress={() => setIsEditing(true)}
       >
         <EntryText value={value} sortedAttachments={sortedAttachments} />
@@ -112,7 +109,11 @@ export default function Entry({
           setSelection={setSelection}
         />
         <Animated.View style={mediaPickerAnimation}>
-          <MediaPicker selection={selection} setAttachments={setAttachments} />
+          <MediaPicker
+            selection={selection}
+            setAttachments={setAttachments}
+            disabled={!isMediaPickerShown}
+          />
         </Animated.View>
       </Animated.View>
     </>

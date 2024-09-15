@@ -13,18 +13,20 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true,
       "bundleIdentifier": "studio.swivel.memento",
+      "buildNumber": "0.0.0.0",
+      "supportsTablet": true,
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app uses your microphone to allow you to embed audio in your memories."
       }
     },
     "android": {
+      "package": "studio.swivel.memento",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "studio.swivel.memento",
       "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "plugins": [

@@ -1,12 +1,11 @@
-import AttachmentText from '@/components/timeline/AttachmentText'
-import { type Attachment } from '@/components/timeline/MediaPicker'
+import type { AttachmentData } from '@/types'
 import { useMemo } from 'react'
 import { Text, View } from 'react-native'
-import { twMerge } from 'tailwind-merge'
+import Attachment from './Attachment'
 
 interface EntryTextProps {
   value: string
-  sortedAttachments: Attachment[]
+  sortedAttachments: AttachmentData[]
 }
 
 export default function EntryText({
@@ -24,48 +23,21 @@ export default function EntryText({
             acc.push(
               <Text
                 key={`previous-${i}-${j}`}
-                className="font-cp ml-2.5 leading-[1.3125]"
+                className="font-cp -z-[1] ml-2.5 leading-[1.3125]"
               >
                 {word}
               </Text>,
             )
           })
 
-          const attachmentStartsInWord = value[attachment.start - 1] !== ' '
-          const attachmentStartsAtStart = attachment.start === 0
-          const attachmentEndsAtEnd = attachment.end === value.length
-          const attachmentEndsInWord = value[attachment.end] !== ' '
-          const attachmentHasAttachmentAsNextWord =
-            i !== sortedAttachments.length - 1 &&
-            attachment.end + 1 === sortedAttachments[i + 1].start
-          const classes = twMerge(
-            attachmentStartsInWord && 'ml-0',
-            attachmentStartsAtStart && '-ml-1',
-            (attachmentEndsAtEnd ||
-              attachmentEndsInWord ||
-              attachmentHasAttachmentAsNextWord) &&
-              '-mr-2.5',
-          )
-
           acc.push(
-            <AttachmentText
+            <Attachment
               key={`attachment-${i}`}
-              className={classes}
-              colorPair={attachment.colorPair}
-            >
-              {value
-                .slice(attachment.start, attachment.end)
-                .split(/(\p{Emoji_Presentation})/u)
-                .map((part, j) =>
-                  part.match(/\p{Emoji_Presentation}/u) ? (
-                    <Text key={`emoji-${i}-${j}`} className="text-[0.75rem]">
-                      {part}
-                    </Text>
-                  ) : (
-                    part
-                  ),
-                )}
-            </AttachmentText>,
+              i={i}
+              value={value}
+              attachment={attachment}
+              sortedAttachments={sortedAttachments}
+            />,
           )
 
           if (i === sortedAttachments.length - 1) {
@@ -74,7 +46,7 @@ export default function EntryText({
               acc.push(
                 <Text
                   key={`remaining-${i}-${j}`}
-                  className="font-cp ml-2.5 leading-[1.3125]"
+                  className="font-cp -z-[1] ml-2.5 leading-[1.3125]"
                 >
                   {word}
                 </Text>,

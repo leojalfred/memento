@@ -1,4 +1,5 @@
 import Entry from '@/components/timeline/Entry'
+import type { Selection } from '@/types'
 import { useState } from 'react'
 import {
   KeyboardAvoidingView,
@@ -7,11 +8,6 @@ import {
   ScrollView,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
-export interface Selection {
-  start: number
-  end: number
-}
 
 export default function TimelineScreen() {
   const [isEditing, setIsEditing] = useState(false)
@@ -23,9 +19,13 @@ export default function TimelineScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 46 : 24}
+          className="flex-1"
         >
           <ScrollView
-            contentContainerStyle={{ padding: 16 }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              padding: 16,
+            }}
             keyboardShouldPersistTaps="handled"
           >
             <Entry
