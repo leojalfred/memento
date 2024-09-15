@@ -13,7 +13,8 @@
     "lint": "expo lint",
     "format": "prettier --write .",
     "test": "jest --watchAll",
-    "test:ci": "jest"
+    "test:ci": "jest",
+    "count": "git ls-files | ggrep -P \".*.(js|yml|gitignore|prettierrc|json|md|tsx|snap|ts|css)$\" | xargs wc -l"
   },
   "dependencies": {
     "@expo-google-fonts/courier-prime": "^0.2.3",
