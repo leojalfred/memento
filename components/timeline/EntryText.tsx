@@ -23,7 +23,7 @@ export default function EntryText({
             acc.push(
               <Text
                 key={`previous-${i}-${j}`}
-                className="font-cp -z-[1] ml-2.5 leading-[1.3125]"
+                className="font-cp -z-[1] ml-2.5 leading-[1.3125] text-zinc-900 dark:text-zinc-100"
               >
                 {word}
               </Text>,
@@ -46,7 +46,7 @@ export default function EntryText({
               acc.push(
                 <Text
                   key={`remaining-${i}-${j}`}
-                  className="font-cp -z-[1] ml-2.5 leading-[1.3125]"
+                  className="font-cp -z-[1] ml-2.5 leading-[1.3125] text-zinc-900 dark:text-zinc-100"
                 >
                   {word}
                 </Text>,
@@ -58,7 +58,9 @@ export default function EntryText({
         }, [])}
       </View>
     ) : (
-      <Text className="font-cp leading-[1.3125]">{value}</Text>
+      <Text className="font-cp leading-[1.3125] text-zinc-900 dark:text-zinc-100">
+        {value}
+      </Text>
     )
   }, [value, sortedAttachments])
 }
