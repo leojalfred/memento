@@ -2,6 +2,7 @@ import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
 import type { AttachmentData, AttachmentType, Selection } from '@/types'
+import { yap } from '@/utils/logging'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
@@ -63,7 +64,7 @@ export default function MediaPicker({
       const { uri, height, width } = result.assets[0]
       pushAttachment(type, uri, height, width)
 
-      console.log('Media loaded and stored at', uri)
+      yap('Media loaded and stored at', uri)
     }
     setIsLoading(false)
   }
@@ -82,7 +83,7 @@ export default function MediaPicker({
   async function startRecording() {
     try {
       if (permissionResponse?.status !== 'granted') {
-        console.log('Requesting permission..')
+        yap('Requesting permission..')
         await requestPermission()
       }
       await Audio.setAudioModeAsync({
@@ -90,18 +91,18 @@ export default function MediaPicker({
         playsInSilentModeIOS: true,
       })
 
-      console.log('Starting recording..')
+      yap('Starting recording..')
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
       )
       setRecording(recording)
-      console.log('Recording started')
+      yap('Recording started')
     } catch (err) {
       console.error('Failed to start recording', err)
     }
   }
   async function stopRecording() {
-    console.log('Stopping recording..')
+    yap('Stopping recording..')
 
     setRecording(undefined)
     await recording?.stopAndUnloadAsync()
@@ -112,7 +113,7 @@ export default function MediaPicker({
     const uri = recording?.getURI()
     if (uri) {
       pushAttachment('audio', uri)
-      console.log('Recording stopped and stored at', uri)
+      yap('Recording stopped and stored at', uri)
     }
   }
 
