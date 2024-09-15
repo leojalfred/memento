@@ -1,10 +1,13 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
+import IconButton from '@/components/IconButton'
 import AttachmentText from '@/components/timeline/AttachmentText'
+import { colors } from '@/constants/colors'
 import type { AttachmentData } from '@/types'
-import { Video } from 'expo-av'
+import { Audio, Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
+import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   interpolateColor,
   useAnimatedProps,
@@ -99,6 +102,49 @@ export default function Attachment({
     [top, left],
   )
 
+  const [isPlaying, setIsPlaying] = useState(false)
+  const soundRef = useRef<Audio.Sound | null>(null)
+
+  useEffect(() => {
+    if (attachment.type === 'audio') {
+      const loadSound = async () => {
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: attachment.uri },
+          { isLooping: true }, // Set isLooping to true
+        )
+        soundRef.current = sound
+        if (!isEditing) {
+          await sound.playAsync()
+          setIsPlaying(true)
+        }
+      }
+      loadSound()
+
+      return () => {
+        if (soundRef.current) {
+          soundRef.current.unloadAsync()
+        }
+      }
+    }
+  }, [attachment.type, attachment.uri, isEditing])
+
+  useEffect(() => {
+    if (isEditing && isPlaying) {
+      soundRef.current?.pauseAsync()
+      setIsPlaying(false)
+    }
+  }, [isEditing, isPlaying])
+
+  const togglePlayPause = async () => {
+    if (isPlaying) {
+      await soundRef.current?.pauseAsync() // Change stopAsync to pauseAsync
+      setIsPlaying(false)
+    } else {
+      await soundRef.current?.playAsync()
+      setIsPlaying(true)
+    }
+  }
+
   let media
   if (attachment.type === 'image') {
     media = (
@@ -124,6 +170,24 @@ export default function Attachment({
         shouldPlay={!isEditing}
         isLooping
       />
+    )
+  } else if (attachment.type === 'audio') {
+    media = (
+      <View className="h-12 w-32 flex-row items-center justify-between">
+        <IconButton
+          icon={isPlaying ? 'stop-circle' : 'play-circle'}
+          onPress={togglePlayPause}
+          disabled={isEditing}
+        />
+        <View className="w-20">
+          <BarIndicator
+            animationDuration={900}
+            color={colors.white}
+            count={16}
+            size={12}
+          />
+        </View>
+      </View>
     )
   }
 
@@ -152,12 +216,27 @@ export default function Attachment({
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           colors={attachment.colorPair}
-          style={styles.mediaContainer}
+          style={[
+            styles.mediaContainer,
+            attachment.type === 'audio' && {
+              top: -30,
+              left: textWidth ? -64 + textWidth / 2 : undefined,
+            },
+          ]}
         >
           {media}
         </AnimatedGradient>
       ) : (
-        <Animated.View style={[animatedBackgroundColor, styles.mediaContainer]}>
+        <Animated.View
+          style={[
+            animatedBackgroundColor,
+            styles.mediaContainer,
+            attachment.type === 'audio' && {
+              top: -30,
+              left: textWidth ? -64 + textWidth / 2 : undefined,
+            },
+          ]}
+        >
           {media}
         </Animated.View>
       )}
