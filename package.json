@@ -12,7 +12,8 @@
     "clear": "expo start --clear",
     "lint": "expo lint",
     "format": "prettier --write .",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "test:ci": "jest"
   },
   "dependencies": {
     "@expo-google-fonts/courier-prime": "^0.2.3",
