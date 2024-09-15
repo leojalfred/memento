@@ -6,7 +6,7 @@ import { yap } from '@/utils/logging'
 import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Platform, View } from 'react-native'
+import { ActivityIndicator, Platform, useColorScheme, View } from 'react-native'
 import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   useAnimatedStyle,
@@ -172,10 +172,12 @@ export default function MediaPicker({
     width: waveWidth.value,
   }))
 
+  const scheme = useColorScheme()
+
   return (
     <View className="flex-row items-center justify-between">
       <Animated.View
-        className="box-border flex-row overflow-hidden rounded-full border border-gray-700"
+        className="box-border flex-row overflow-hidden rounded-full border border-gray-700 dark:border-gray-300"
         style={mediaPickerAnimation}
       >
         <Animated.View className="flex-row" style={nonAudioAnimation}>
@@ -195,7 +197,7 @@ export default function MediaPicker({
         <Animated.View style={waveAnimation}>
           <BarIndicator
             animationDuration={900}
-            color={colors.gray[700]}
+            color={scheme === 'light' ? colors.gray[700] : colors.gray[300]}
             count={16}
             size={12}
           />
@@ -207,7 +209,10 @@ export default function MediaPicker({
         />
       </Animated.View>
       <Animated.View style={loaderAnimation}>
-        <ActivityIndicator size="small" color={colors.gray[700]} />
+        <ActivityIndicator
+          size="small"
+          color={scheme === 'light' ? colors.gray[700] : colors.gray[300]}
+        />
       </Animated.View>
     </View>
   )

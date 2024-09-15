@@ -1,6 +1,10 @@
 import { colors } from '@/constants/colors'
 import { Feather } from '@expo/vector-icons'
-import { GestureResponderEvent, TouchableOpacity } from 'react-native'
+import {
+  GestureResponderEvent,
+  TouchableOpacity,
+  useColorScheme,
+} from 'react-native'
 
 interface IconButtonProps {
   icon: keyof typeof Feather.glyphMap
@@ -13,13 +17,19 @@ export default function IconButton({
   onPress,
   disabled,
 }: IconButtonProps) {
+  const scheme = useColorScheme()
+
   return (
     <TouchableOpacity
       className="px-4 py-1"
       onPress={onPress}
       disabled={disabled}
     >
-      <Feather name={icon} size={20} color={colors.gray[700]} />
+      <Feather
+        name={icon}
+        size={20}
+        color={scheme === 'light' ? colors.gray[700] : colors.gray[300]}
+      />
     </TouchableOpacity>
   )
 }

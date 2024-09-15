@@ -42,7 +42,7 @@ export default function EntryTextInput({
 
             acc.push(value.slice(previousEnd, attachment.start))
             acc.push(
-              <Text key={index} className="bg-yellow-200">
+              <Text key={index} className="bg-yellow-200 text-zinc-900">
                 {value.slice(attachment.start, attachment.end)}
               </Text>,
             )
@@ -89,7 +89,7 @@ export default function EntryTextInput({
 
   const inputTextClasses = useMemo(() => {
     return twMerge(
-      'font-cp absolute bottom-px left-px right-px top-[1.5px] p-2 leading-[1.123]',
+      'font-cp absolute bottom-px left-px right-px top-[1.5px] p-2 leading-[1.123] text-zinc-900 dark:text-zinc-100',
       Platform.OS === 'ios' ? 'top-[1.5px]' : 'top-px',
     )
   }, [])
@@ -103,7 +103,7 @@ export default function EntryTextInput({
           <Text className={inputTextClasses}>{inputText}</Text>
           {Platform.OS === 'ios' ? (
             <TextInput
-              className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent"
+              className="font-cp mb-4 rounded-lg border border-gray-700 p-2 text-transparent dark:border-gray-300"
               contextMenuHidden={true}
               multiline={true}
               placeholder="Start writing..."
@@ -118,7 +118,7 @@ export default function EntryTextInput({
               onSelectionChange={onSelectionChange}
             />
           ) : (
-            <View className="mb-4 rounded-lg border border-gray-700 p-2">
+            <View className="mb-4 rounded-lg border border-gray-700 p-2 dark:border-gray-300">
               <TextInput
                 className="font-cp leading-[1.123] text-transparent"
                 contextMenuHidden={true}
