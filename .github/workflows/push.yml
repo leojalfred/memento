@@ -7,9 +7,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - name: Install Dependencies
+      - name: Install dependencies
         run: bun install
-      - name: Lint Codebase
+      - name: Lint codebase
         run: bun run lint
-      - name: Run Test
+      - name: Run test
         run: bun run test:ci
