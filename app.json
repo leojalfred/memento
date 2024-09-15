@@ -47,6 +47,14 @@
           "photosPermission": "This app accesses your photos to let you embed them in your memories."
         }
       ],
+      [
+        "expo-navigation-bar",
+        {
+          "position": "relative",
+          "visibility": "hidden",
+          "behavior": "overlay-swipe"
+        }
+      ],
       "expo-router"
     ],
     "experiments": {
