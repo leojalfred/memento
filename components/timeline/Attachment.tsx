@@ -20,6 +20,7 @@ interface AttachmentProps {
   value: string
   attachment: AttachmentData
   sortedAttachments: AttachmentData[]
+  isEditing: boolean
 }
 
 const width = 128
@@ -31,6 +32,7 @@ export default function Attachment({
   value,
   attachment,
   sortedAttachments,
+  isEditing,
 }: AttachmentProps) {
   const attachmentStartsInWord = value[attachment.start - 1] !== ' '
   const attachmentStartsAtStart = attachment.start === 0
@@ -121,7 +123,7 @@ export default function Attachment({
         }}
         shouldPlay
         isLooping
-        isMuted
+        isMuted={isEditing}
       />
     )
   }

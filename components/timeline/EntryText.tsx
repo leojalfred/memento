@@ -6,11 +6,13 @@ import Attachment from './Attachment'
 interface EntryTextProps {
   value: string
   sortedAttachments: AttachmentData[]
+  isEditing: boolean
 }
 
 export default function EntryText({
   value,
   sortedAttachments,
+  isEditing,
 }: EntryTextProps) {
   return useMemo(() => {
     return sortedAttachments.length > 0 ? (
@@ -37,6 +39,7 @@ export default function EntryText({
               value={value}
               attachment={attachment}
               sortedAttachments={sortedAttachments}
+              isEditing={isEditing}
             />,
           )
 
@@ -62,5 +65,5 @@ export default function EntryText({
         {value}
       </Text>
     )
-  }, [value, sortedAttachments])
+  }, [sortedAttachments, value, isEditing])
 }
