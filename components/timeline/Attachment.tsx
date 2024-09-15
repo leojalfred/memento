@@ -121,9 +121,8 @@ export default function Attachment({
           width,
           borderRadius,
         }}
-        shouldPlay
+        shouldPlay={!isEditing}
         isLooping
-        isMuted={isEditing}
       />
     )
   }
