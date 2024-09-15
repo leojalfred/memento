@@ -97,7 +97,11 @@ export default function Entry({
         className="flex-1"
         onPress={() => setIsEditing(true)}
       >
-        <EntryText value={value} sortedAttachments={sortedAttachments} />
+        <EntryText
+          value={value}
+          sortedAttachments={sortedAttachments}
+          isEditing={isEditing}
+        />
       </AnimatedPressable>
       <Animated.View style={inputAnimation}>
         <EntryTextInput

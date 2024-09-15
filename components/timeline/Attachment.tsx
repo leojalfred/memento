@@ -1,6 +1,7 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
 import AttachmentText from '@/components/timeline/AttachmentText'
 import type { AttachmentData } from '@/types'
+import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { useEffect, useMemo, useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
@@ -19,6 +20,7 @@ interface AttachmentProps {
   value: string
   attachment: AttachmentData
   sortedAttachments: AttachmentData[]
+  isEditing: boolean
 }
 
 const width = 128
@@ -30,6 +32,7 @@ export default function Attachment({
   value,
   attachment,
   sortedAttachments,
+  isEditing,
 }: AttachmentProps) {
   const attachmentStartsInWord = value[attachment.start - 1] !== ' '
   const attachmentStartsAtStart = attachment.start === 0
@@ -75,7 +78,7 @@ export default function Attachment({
   let top = null
   let left = null
 
-  if (attachment.type === 'image') {
+  if (['image', 'video'].includes(attachment.type)) {
     aspectRatio = attachment.width! / attachment.height!
     top =
       -((width / attachment.width!) * attachment.height! * 0.5) + 8.5 - padding
@@ -97,7 +100,7 @@ export default function Attachment({
   )
 
   let media
-  if (attachment.type === 'image')
+  if (attachment.type === 'image') {
     media = (
       <Image
         source={{ uri: attachment.uri }}
@@ -109,6 +112,20 @@ export default function Attachment({
         }}
       />
     )
+  } else if (attachment.type === 'video') {
+    media = (
+      <Video
+        source={{ uri: attachment.uri }}
+        style={{
+          aspectRatio: aspectRatio!,
+          width,
+          borderRadius,
+        }}
+        shouldPlay={!isEditing}
+        isLooping
+      />
+    )
+  }
 
   return (
     <View key={`attachment-${i}`}>

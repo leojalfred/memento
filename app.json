@@ -55,7 +55,8 @@
           "behavior": "overlay-swipe"
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
