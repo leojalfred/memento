@@ -1,9 +1,9 @@
-import TimelineScreen from '@/app/index'
+import Divider from '@/components/Divider'
 import { render } from '@testing-library/react-native'
 
-describe('<TimelineScreen />', () => {
+describe('<Divider />', () => {
   it('renders correctly', () => {
-    const tree = render(<TimelineScreen />).toJSON()
+    const tree = render(<Divider />).toJSON()
     expect(tree).toMatchSnapshot()
   })
 })
