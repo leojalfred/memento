@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Divider /> renders correctly 1`] = `
+<View
+  className="h-full w-px bg-gray-700"
+/>
+`;
