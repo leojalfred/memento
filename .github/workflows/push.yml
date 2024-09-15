@@ -1,6 +1,8 @@
 name: Lint and Test Upon Push
 run-name: Linting and Testing ${{ github.ref }}
 on: [push]
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
