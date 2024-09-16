@@ -182,12 +182,14 @@ export default function MediaPicker({
       >
         <Animated.View className="flex-row" style={nonAudioAnimation}>
           <IconButton
+            className="px-4 py-1"
             icon="image"
             onPress={() => pickMedia('image')}
             disabled={disabled}
           />
           <Divider />
           <IconButton
+            className="px-4 py-1"
             icon="video"
             onPress={() => pickMedia('video')}
             disabled={disabled}
@@ -198,6 +200,7 @@ export default function MediaPicker({
           <Waveform count={24} isPlaying={Boolean(recording)} />
         </Animated.View>
         <IconButton
+          className="px-4 py-1"
           icon={recording ? 'stop-circle' : 'mic'}
           onPress={recording ? stopRecording : startRecording}
           disabled={disabled}

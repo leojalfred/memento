@@ -26,8 +26,8 @@ interface AttachmentProps {
 }
 
 const width = 128
-const padding = 4
-const borderRadius = 8
+let padding = 4
+let borderRadius = 8
 
 export default function Attachment({
   i,
@@ -87,19 +87,28 @@ export default function Attachment({
     left = textWidth ? -width / 2 + textWidth / 2 + 5.25 - padding : undefined
   }
 
-  const styles = useMemo(
-    () =>
-      StyleSheet.create({
-        mediaContainer: {
-          position: 'absolute',
-          top,
-          left,
-          borderRadius: borderRadius + padding,
-          padding,
-        },
-      }),
-    [top, left],
-  )
+  const styles = useMemo(() => {
+    return attachment.type === 'audio'
+      ? StyleSheet.create({
+          mediaContainer: {
+            position: 'absolute',
+            top: -9.075, // -36.3 [height] / 4 = -9.075
+            left: textWidth ? -85.15 + textWidth / 2 : undefined, // -170.3 [width] / 2 = -85.15
+            borderRadius: 100,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+          },
+        })
+      : StyleSheet.create({
+          mediaContainer: {
+            position: 'absolute',
+            top,
+            left,
+            borderRadius: borderRadius + padding,
+            padding,
+          },
+        })
+  }, [attachment.type, top, left, textWidth])
 
   const [isPlaying, setIsPlaying] = useState(false)
   const soundRef = useRef<Audio.Sound | null>(null)
@@ -172,15 +181,14 @@ export default function Attachment({
     )
   } else if (attachment.type === 'audio') {
     media = (
-      <View className="h-12 w-32 flex-row items-center justify-between">
+      <View className="flex-row items-center justify-between">
         <IconButton
+          className="pr-4"
           icon={isPlaying ? 'stop-circle' : 'play-circle'}
           onPress={togglePlayPause}
           disabled={isEditing}
         />
-        <View className="w-20">
-          <Waveform count={24} isPlaying={isPlaying} />
-        </View>
+        <Waveform count={24} isPlaying={isPlaying} />
       </View>
     )
   }
@@ -210,27 +218,12 @@ export default function Attachment({
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           colors={attachment.colorPair}
-          style={[
-            styles.mediaContainer,
-            attachment.type === 'audio' && {
-              top: -30,
-              left: textWidth ? -64 + textWidth / 2 : undefined,
-            },
-          ]}
+          style={[styles.mediaContainer]}
         >
           {media}
         </AnimatedGradient>
       ) : (
-        <Animated.View
-          style={[
-            animatedBackgroundColor,
-            styles.mediaContainer,
-            attachment.type === 'audio' && {
-              top: -30,
-              left: textWidth ? -64 + textWidth / 2 : undefined,
-            },
-          ]}
-        >
+        <Animated.View style={[animatedBackgroundColor, styles.mediaContainer]}>
           {media}
         </Animated.View>
       )}
