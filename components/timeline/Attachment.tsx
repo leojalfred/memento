@@ -5,7 +5,7 @@ import Waveform from '@/components/Waveform'
 import type { AttachmentData } from '@/types'
 import { Audio, Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   interpolateColor,
@@ -77,8 +77,8 @@ export default function Attachment({
   const [textWidth, setTextWidth] = useState<number>()
   const text = value.slice(attachment.start, attachment.end)
   let aspectRatio = null
-  let top = null
-  let left = null
+  let top = -9.075 // -36.3 [height] / 4 = -9.075
+  let left = textWidth ? -85.15 + textWidth / 2 : undefined // -170.3 [width] / 2 = -85.15
 
   if (['image', 'video'].includes(attachment.type)) {
     aspectRatio = attachment.width! / attachment.height!
@@ -92,8 +92,8 @@ export default function Attachment({
       ? StyleSheet.create({
           mediaContainer: {
             position: 'absolute',
-            top: -9.075, // -36.3 [height] / 4 = -9.075
-            left: textWidth ? -85.15 + textWidth / 2 : undefined, // -170.3 [width] / 2 = -85.15
+            top,
+            left,
             borderRadius: 100,
             paddingHorizontal: 16,
             paddingVertical: 8,
@@ -108,50 +108,60 @@ export default function Attachment({
             padding,
           },
         })
-  }, [attachment.type, top, left, textWidth])
+  }, [attachment.type, top, left])
 
+  const [sound, setSound] = useState<Audio.Sound>()
   const [isPlaying, setIsPlaying] = useState(false)
-  const soundRef = useRef<Audio.Sound | null>(null)
+  const loadSound = useCallback(async () => {
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: attachment.uri },
+      { isLooping: true },
+    )
+    setSound(sound)
+  }, [attachment.uri])
 
+  // load sound
   useEffect(() => {
     if (attachment.type === 'audio') {
-      const loadSound = async () => {
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: attachment.uri },
-          { isLooping: true }, // Set isLooping to true
-        )
-        soundRef.current = sound
-        if (!isEditing) {
-          await sound.playAsync()
-          setIsPlaying(true)
-        }
-      }
-      loadSound()
-
-      return () => {
-        if (soundRef.current) {
-          soundRef.current.unloadAsync()
-        }
-      }
+      setTimeout(loadSound)
     }
-  }, [attachment.type, attachment.uri, isEditing])
+  }, [attachment.type, loadSound])
 
+  // play sound on view
   useEffect(() => {
-    if (isEditing && isPlaying) {
-      soundRef.current?.pauseAsync()
-      setIsPlaying(false)
+    if (sound) {
+      if (isEditing) {
+        sound.pauseAsync()
+        setIsPlaying(false)
+      } else {
+        sound.playAsync()
+        setIsPlaying(true)
+      }
     }
-  }, [isEditing, isPlaying])
+  }, [sound, isEditing])
 
-  const togglePlayPause = async () => {
-    if (isPlaying) {
-      await soundRef.current?.pauseAsync() // Change stopAsync to pauseAsync
+  // unload sound on unmount
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync()
+        }
+      : undefined
+  }, [sound])
+
+  const toggleSoundPlayback = useCallback(async () => {
+    const status = await sound?.getStatusAsync()
+    console.log(status)
+
+    // @ts-expect-error
+    if (status?.isPlaying) {
+      sound?.pauseAsync()
       setIsPlaying(false)
     } else {
-      await soundRef.current?.playAsync()
+      sound?.playAsync()
       setIsPlaying(true)
     }
-  }
+  }, [sound])
 
   let media
   if (attachment.type === 'image') {
@@ -185,7 +195,7 @@ export default function Attachment({
         <IconButton
           className="pr-4"
           icon={isPlaying ? 'stop-circle' : 'play-circle'}
-          onPress={togglePlayPause}
+          onPress={toggleSoundPlayback}
           disabled={isEditing}
         />
         <Waveform count={24} isPlaying={isPlaying} />
