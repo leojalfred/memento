@@ -113,29 +113,29 @@ export default function Attachment({
   const [sound, setSound] = useState<Audio.Sound>()
   const [isPlaying, setIsPlaying] = useState(false)
   const loadSound = useCallback(async () => {
-    const { sound } = await Audio.Sound.createAsync(
+    const status = await sound?.getStatusAsync()
+    if (status?.isLoaded) return
+
+    const { sound: loadedSound } = await Audio.Sound.createAsync(
       { uri: attachment.uri },
       { isLooping: true },
     )
-    setSound(sound)
-  }, [attachment.uri])
+    setSound(loadedSound)
+  }, [sound, attachment.uri])
 
   // load sound
   useEffect(() => {
     if (attachment.type === 'audio') {
-      setTimeout(loadSound)
+      setTimeout(loadSound, 0)
     }
-  }, [attachment.type, loadSound])
+  }, [attachment.type, loadSound, sound])
 
-  // play sound on view
+  // pause sound on edit
   useEffect(() => {
     if (sound) {
       if (isEditing) {
         sound.pauseAsync()
         setIsPlaying(false)
-      } else {
-        sound.playAsync()
-        setIsPlaying(true)
       }
     }
   }, [sound, isEditing])
