@@ -1,13 +1,12 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
 import IconButton from '@/components/IconButton'
 import AttachmentText from '@/components/timeline/AttachmentText'
-import { colors } from '@/constants/colors'
+import Waveform from '@/components/Waveform'
 import type { AttachmentData } from '@/types'
 import { Audio, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   interpolateColor,
   useAnimatedProps,
@@ -180,12 +179,7 @@ export default function Attachment({
           disabled={isEditing}
         />
         <View className="w-20">
-          <BarIndicator
-            animationDuration={900}
-            color={colors.white}
-            count={16}
-            size={12}
-          />
+          <Waveform count={24} isPlaying={isPlaying} />
         </View>
       </View>
     )

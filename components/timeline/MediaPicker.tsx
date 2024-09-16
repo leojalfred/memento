@@ -1,5 +1,6 @@
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
+import Waveform from '@/components/Waveform'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
 import type { AttachmentData, AttachmentType, Selection } from '@/types'
 import { yap } from '@/utils/logging'
@@ -7,7 +8,6 @@ import { Audio } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, Platform, useColorScheme, View } from 'react-native'
-import { BarIndicator } from 'react-native-indicators'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -119,7 +119,7 @@ export default function MediaPicker({
 
   const mediaPickerWidth = useSharedValue(148)
   useEffect(() => {
-    mediaPickerWidth.value = withTiming(recording ? 130 : 148, {
+    mediaPickerWidth.value = withTiming(recording ? 174 : 148, {
       duration: 200,
     })
   }, [recording, mediaPickerWidth])
@@ -156,7 +156,7 @@ export default function MediaPicker({
     wavePaddingLeft.value = withTiming(recording ? 16 : 0, {
       duration: 200,
     })
-    waveWidth.value = withTiming(recording ? 80 : 0, {
+    waveWidth.value = withTiming(recording ? 124 : 0, {
       duration: 200,
     })
   }, [recording, waveOpacity, wavePaddingLeft, waveWidth])
@@ -177,7 +177,7 @@ export default function MediaPicker({
   return (
     <View className="flex-row items-center justify-between">
       <Animated.View
-        className="box-border flex-row overflow-hidden rounded-full border border-gray-700 dark:border-gray-300"
+        className="box-border flex-row items-center overflow-hidden rounded-full border border-gray-700 dark:border-gray-300"
         style={mediaPickerAnimation}
       >
         <Animated.View className="flex-row" style={nonAudioAnimation}>
@@ -195,12 +195,7 @@ export default function MediaPicker({
           <Divider />
         </Animated.View>
         <Animated.View style={waveAnimation}>
-          <BarIndicator
-            animationDuration={900}
-            color={scheme === 'light' ? colors.gray[700] : colors.gray[300]}
-            count={16}
-            size={12}
-          />
+          <Waveform count={24} isPlaying={Boolean(recording)} />
         </Animated.View>
         <IconButton
           icon={recording ? 'stop-circle' : 'mic'}
