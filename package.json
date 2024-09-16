@@ -10,6 +10,7 @@
     "phone": "expo run:ios --device 00008110-001459163EEA801E",
     "clean": "expo prebuild --clean",
     "clear": "expo start --clear",
+    "typecheck": "tsc --project ./tsconfig.json",
     "lint": "expo lint",
     "format": "prettier --write .",
     "test": "jest --watchAll",
