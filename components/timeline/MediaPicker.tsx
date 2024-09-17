@@ -4,10 +4,10 @@ import Waveform from '@/components/Waveform'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
 import type { AttachmentData, AttachmentType, Selection } from '@/types'
 import { yap } from '@/utils/logging'
-import { Audio } from 'expo-av'
+import { Audio, InterruptionModeIOS } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Platform, useColorScheme, View } from 'react-native'
+import { ActivityIndicator, Platform, View, useColorScheme } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -78,51 +78,78 @@ export default function MediaPicker({
     opacity: loaderOpacity.value,
   }))
 
-  const [recording, setRecording] = useState<Audio.Recording>()
   const [permissionResponse, requestPermission] = Audio.usePermissions()
+  const [recording, setRecording] = useState(new Audio.Recording())
+  const [isRecordingPrepared, setIsRecordingPrepared] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+
+  useEffect(() => {
+    const prepareRecording = async () => {
+      setIsRecordingPrepared(true)
+
+      try {
+        if (permissionResponse?.status !== 'granted') {
+          yap('Requesting permission..')
+          await requestPermission()
+        }
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        })
+
+        await recording.prepareToRecordAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        )
+      } catch (error) {
+        setIsRecordingPrepared(false)
+        console.error('Failed to prepare recording:', error)
+      }
+    }
+
+    if (!isRecordingPrepared) prepareRecording()
+  }, [permissionResponse, requestPermission, recording, isRecordingPrepared])
+
   async function startRecording() {
     try {
-      if (permissionResponse?.status !== 'granted') {
-        yap('Requesting permission..')
-        await requestPermission()
+      if (isRecordingPrepared) {
+        yap('Starting recording..')
+        await recording.startAsync()
+        setIsRecording(true)
       }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      })
-
-      yap('Starting recording..')
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      )
-      setRecording(recording)
-      yap('Recording started')
-    } catch (err) {
-      console.error('Failed to start recording', err)
+    } catch (error) {
+      console.error('Failed to start recording:', error)
     }
   }
+
   async function stopRecording() {
-    yap('Stopping recording..')
+    try {
+      yap('Stopping recording..')
 
-    setRecording(undefined)
-    await recording?.stopAndUnloadAsync()
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-    })
+      await recording.stopAndUnloadAsync()
 
-    const uri = recording?.getURI()
-    if (uri) {
-      pushAttachment('audio', uri)
-      yap('Recording stopped and stored at', uri)
+      setRecording(new Audio.Recording())
+      setIsRecording(false)
+      setIsRecordingPrepared(false)
+
+      const uri = recording.getURI()
+      if (uri) {
+        pushAttachment('audio', uri)
+        yap('Recording stopped and stored at', uri)
+      }
+    } catch (error) {
+      console.error('Failed to stop recording:', error)
     }
   }
 
   const mediaPickerWidth = useSharedValue(148)
   useEffect(() => {
-    mediaPickerWidth.value = withTiming(recording ? 174 : 148, {
+    mediaPickerWidth.value = withTiming(isRecording ? 174 : 148, {
       duration: 200,
     })
-  }, [recording, mediaPickerWidth])
+  }, [isRecording, mediaPickerWidth])
   const mediaPickerAnimation = useAnimatedStyle(() => ({
     width: mediaPickerWidth.value,
   }))
@@ -130,13 +157,13 @@ export default function MediaPicker({
   const nonAudioOpacity = useSharedValue(1)
   const nonAudioWidth = useSharedValue(98)
   useEffect(() => {
-    nonAudioOpacity.value = withTiming(recording ? 0 : 1, {
+    nonAudioOpacity.value = withTiming(isRecording ? 0 : 1, {
       duration: 200,
     })
-    nonAudioWidth.value = withTiming(recording ? 0 : 98, {
+    nonAudioWidth.value = withTiming(isRecording ? 0 : 98, {
       duration: 200,
     })
-  }, [recording, nonAudioOpacity, nonAudioWidth])
+  }, [isRecording, nonAudioOpacity, nonAudioWidth])
   const nonAudioAnimation = useAnimatedStyle(() => ({
     display:
       nonAudioOpacity.value === 0 && nonAudioWidth.value === 0
@@ -150,16 +177,16 @@ export default function MediaPicker({
   const wavePaddingLeft = useSharedValue(0)
   const waveWidth = useSharedValue(0)
   useEffect(() => {
-    waveOpacity.value = withTiming(recording ? 1 : 0, {
+    waveOpacity.value = withTiming(isRecording ? 1 : 0, {
       duration: 200,
     })
-    wavePaddingLeft.value = withTiming(recording ? 16 : 0, {
+    wavePaddingLeft.value = withTiming(isRecording ? 16 : 0, {
       duration: 200,
     })
-    waveWidth.value = withTiming(recording ? 124 : 0, {
+    waveWidth.value = withTiming(isRecording ? 124 : 0, {
       duration: 200,
     })
-  }, [recording, waveOpacity, wavePaddingLeft, waveWidth])
+  }, [isRecording, waveOpacity, wavePaddingLeft, waveWidth])
   const waveAnimation = useAnimatedStyle(() => ({
     display:
       waveOpacity.value === 0 &&
@@ -197,12 +224,12 @@ export default function MediaPicker({
           <Divider />
         </Animated.View>
         <Animated.View style={waveAnimation}>
-          <Waveform count={24} isPlaying={Boolean(recording)} />
+          <Waveform count={24} isPlaying={isRecording} />
         </Animated.View>
         <IconButton
           className="px-4 py-1"
-          icon={recording ? 'stop-circle' : 'mic'}
-          onPress={recording ? stopRecording : startRecording}
+          icon={isRecording ? 'stop-circle' : 'mic'}
+          onPress={isRecording ? stopRecording : startRecording}
           disabled={disabled}
         />
       </Animated.View>
