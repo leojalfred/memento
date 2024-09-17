@@ -6,7 +6,7 @@ import type { AttachmentData, AttachmentType, Selection } from '@/types'
 import { yap } from '@/utils/logging'
 import { Audio, InterruptionModeIOS } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ActivityIndicator, Platform, View, useColorScheme } from 'react-native'
 import Animated, {
   useAnimatedStyle,
@@ -26,32 +26,34 @@ export default function MediaPicker({
   disabled,
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const pushAttachment = useCallback(
-    (type: AttachmentType, uri: string, height?: number, width?: number) => {
-      const colorPair =
-        Platform.OS === 'ios'
-          ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
-          : androidColorPairs[
-              Math.floor(Math.random() * androidColorPairs.length)
-            ]
+  function pushAttachment(
+    type: AttachmentType,
+    uri: string,
+    height?: number,
+    width?: number,
+  ) {
+    const colorPair =
+      Platform.OS === 'ios'
+        ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
+        : androidColorPairs[
+            Math.floor(Math.random() * androidColorPairs.length)
+          ]
 
-      setAttachments((attachments) => [
-        ...attachments,
-        {
-          start: selection.start,
-          end: selection.end,
-          type,
-          uri,
-          height,
-          width,
-          colorPair,
-        },
-      ])
-    },
-    [setAttachments, selection.start, selection.end],
-  )
+    setAttachments((attachments) => [
+      ...attachments,
+      {
+        start: selection.start,
+        end: selection.end,
+        type,
+        uri,
+        height,
+        width,
+        colorPair,
+      },
+    ])
+  }
 
-  const pickMedia = async (type: 'image' | 'video') => {
+  async function pickMedia(type: 'image' | 'video') {
     setIsLoading(true)
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:
@@ -129,6 +131,9 @@ export default function MediaPicker({
       yap('Stopping recording..')
 
       await recording.stopAndUnloadAsync()
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      })
 
       setRecording(new Audio.Recording())
       setIsRecording(false)

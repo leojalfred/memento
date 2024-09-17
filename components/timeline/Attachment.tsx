@@ -111,7 +111,7 @@ export default function Attachment({
   }, [attachment.type, top, left])
 
   const [sound, setSound] = useState<Audio.Sound>()
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isSoundPlaying, setIsSoundPlaying] = useState(false)
   const loadSound = useCallback(async () => {
     const status = await sound?.getStatusAsync()
     if (status?.isLoaded) return
@@ -120,22 +120,23 @@ export default function Attachment({
       { uri: attachment.uri },
       { isLooping: true },
     )
+
     setSound(loadedSound)
   }, [sound, attachment.uri])
 
   // load sound
   useEffect(() => {
     if (attachment.type === 'audio') {
-      setTimeout(loadSound, 0)
+      loadSound()
     }
-  }, [attachment.type, loadSound, sound])
+  }, [attachment.type, loadSound])
 
   // pause sound on edit
   useEffect(() => {
     if (sound) {
       if (isEditing) {
         sound.pauseAsync()
-        setIsPlaying(false)
+        setIsSoundPlaying(false)
       }
     }
   }, [sound, isEditing])
@@ -149,19 +150,15 @@ export default function Attachment({
       : undefined
   }, [sound])
 
-  const toggleSoundPlayback = useCallback(async () => {
-    const status = await sound?.getStatusAsync()
-    console.log(status)
-
-    // @ts-expect-error
-    if (status?.isPlaying) {
-      sound?.pauseAsync()
-      setIsPlaying(false)
+  async function toggleSoundPlayback() {
+    if (isSoundPlaying) {
+      await sound?.pauseAsync()
+      setIsSoundPlaying(false)
     } else {
-      sound?.playAsync()
-      setIsPlaying(true)
+      await sound?.playAsync()
+      setIsSoundPlaying(true)
     }
-  }, [sound])
+  }
 
   let media
   if (attachment.type === 'image') {
@@ -194,17 +191,17 @@ export default function Attachment({
       <View className="flex-row items-center justify-between">
         <IconButton
           className="pr-4"
-          icon={isPlaying ? 'stop-circle' : 'play-circle'}
+          icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
           onPress={toggleSoundPlayback}
           disabled={isEditing}
         />
-        <Waveform count={24} isPlaying={isPlaying} />
+        <Waveform count={24} isPlaying={isSoundPlaying} />
       </View>
     )
   }
 
   return (
-    <View key={`attachment-${i}`}>
+    <View>
       <AttachmentText
         className={classes}
         animatedColors={animatedColors}
