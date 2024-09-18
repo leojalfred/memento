@@ -79,7 +79,7 @@ export default function Attachment({
   const text = value.slice(attachment.start, attachment.end)
   let aspectRatio = null
   let top = -9.075 // -36.3 [height] / 4 = -9.075
-  let left = 0
+  let left = attachment.start === 0 ? -5.25 : 0
 
   if (['image', 'video'].includes(attachment.type) && attachmentTextLayout) {
     const scaledAttachmentHeight =
@@ -88,8 +88,6 @@ export default function Attachment({
     aspectRatio = attachment.width! / attachment.height!
     top = (attachmentTextLayout.height - scaledAttachmentHeight) / 2 - padding
     left = (attachmentTextLayout.width - width) / 2 - padding + 5.25
-  } else if (attachment.type === 'audio' && attachmentTextLayout) {
-    top = (attachmentTextLayout.height - 28.3) / 2 - padding
   }
 
   const styles = useMemo(() => {
