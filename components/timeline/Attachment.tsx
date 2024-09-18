@@ -29,6 +29,9 @@ const width = 128
 let padding = 4
 let borderRadius = 8
 
+const audioPlayerHeight = 28.3
+const audioPlayerWidth = 172
+
 export default function Attachment({
   i,
   value,
@@ -88,6 +91,9 @@ export default function Attachment({
     aspectRatio = attachment.width! / attachment.height!
     top = (attachmentTextLayout.height - scaledAttachmentHeight) / 2 - padding
     left = (attachmentTextLayout.width - width) / 2 - padding + 5.25
+  } else if (attachment.type === 'audio' && attachmentTextLayout) {
+    top = (attachmentTextLayout.height - audioPlayerHeight) / 2 - padding
+    left = (attachmentTextLayout.width - audioPlayerWidth) / 2 + 5.25
   }
 
   const styles = useMemo(() => {
