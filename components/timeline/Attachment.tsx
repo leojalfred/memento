@@ -6,7 +6,7 @@ import type { AttachmentData } from '@/types'
 import { Audio, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { LayoutRectangle, Platform, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   interpolateColor,
   useAnimatedProps,
@@ -74,7 +74,8 @@ export default function Attachment({
     ),
   }))
 
-  const [textWidth, setTextWidth] = useState<number>()
+  const [attachmentTextLayout, setAttachmentTextLayout] =
+    useState<LayoutRectangle>()
   const text = value.slice(attachment.start, attachment.end)
   let aspectRatio = null
   let top = -9.075 // -36.3 [height] / 4 = -9.075
@@ -83,8 +84,12 @@ export default function Attachment({
   if (['image', 'video'].includes(attachment.type)) {
     aspectRatio = attachment.width! / attachment.height!
     top =
-      -((width / attachment.width!) * attachment.height! * 0.5) + 8.5 - padding
-    left = textWidth ? -width / 2 + textWidth / 2 + 5.25 - padding : 0
+      -((width / attachment.width!) * attachment.height! * 0.5) +
+      (attachmentTextLayout ? attachmentTextLayout.height / 2 : 8.5) -
+      padding
+    left = attachmentTextLayout
+      ? -width / 2 + attachmentTextLayout.width / 2 + 5.25 - padding
+      : 0
   }
 
   const styles = useMemo(() => {
@@ -207,7 +212,7 @@ export default function Attachment({
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
         colorPair={attachment.colorPair}
-        setTextWidth={setTextWidth}
+        setAttachmentTextLayout={setAttachmentTextLayout}
       >
         {text.split(/(\p{Emoji_Presentation})/u).map((part, j) =>
           part.match(/\p{Emoji_Presentation}/u) ? (
