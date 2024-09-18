@@ -78,13 +78,13 @@ export default function Attachment({
   const text = value.slice(attachment.start, attachment.end)
   let aspectRatio = null
   let top = -9.075 // -36.3 [height] / 4 = -9.075
-  let left = textWidth ? -85.15 + textWidth / 2 : undefined // -170.3 [width] / 2 = -85.15
+  let left = 0
 
   if (['image', 'video'].includes(attachment.type)) {
     aspectRatio = attachment.width! / attachment.height!
     top =
       -((width / attachment.width!) * attachment.height! * 0.5) + 8.5 - padding
-    left = textWidth ? -width / 2 + textWidth / 2 + 5.25 - padding : undefined
+    left = textWidth ? -width / 2 + textWidth / 2 + 5.25 - padding : 0
   }
 
   const styles = useMemo(() => {
@@ -188,7 +188,7 @@ export default function Attachment({
     )
   } else if (attachment.type === 'audio') {
     media = (
-      <View className="flex-row items-center justify-between">
+      <View className="w-[140px] flex-row items-center justify-between">
         <IconButton
           className="pr-4"
           icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
