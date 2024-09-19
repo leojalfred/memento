@@ -1,13 +1,6 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
-import type { AttachmentData } from '@/types'
 import React from 'react'
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  type LayoutChangeEvent,
-} from 'react-native'
+import { Platform, Text, type LayoutChangeEvent } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { twMerge } from 'tailwind-merge'
 
@@ -20,91 +13,18 @@ interface AttachmentTextProps {
     backgroundColor: string
   }
   colorPair: [string, string]
-  isEditing: boolean
-  attachment: AttachmentData
-  isAttachmentAfterFirstSpace: boolean
-  setStyles: React.Dispatch<React.SetStateAction<any>>
+  onLayout: (event: LayoutChangeEvent) => void
   children: React.ReactNode
 }
-
-const mediaWidth = 128
-let padding = 4
-let borderRadius = 8
-
-const audioPlayerHeight = 28.3
-const audioPlayerWidth = 172
 
 export default function AttachmentText({
   className,
   animatedColors,
   animatedBackgroundColor,
   colorPair,
-  isEditing,
-  attachment,
-  isAttachmentAfterFirstSpace,
-  setStyles,
+  onLayout,
   children,
 }: AttachmentTextProps) {
-  const { width: screenWidth } = useWindowDimensions()
-
-  function onLayout(event: LayoutChangeEvent) {
-    if (isEditing) return
-
-    event.target.measure((x, y, width, height, pageX, pageY) => {
-      if (['image', 'video'].includes(attachment.type)) {
-        const scaledAttachmentHeight =
-          (mediaWidth / attachment.width!) * attachment.height!
-
-        const aspectRatio = attachment.width! / attachment.height!
-        const top = (height - scaledAttachmentHeight) / 2 - padding
-
-        let left = (width - mediaWidth) / 2 - padding + 5.25
-        if (pageX + left < 0) left = 0
-        if (pageX + left + mediaWidth + padding * 2 > screenWidth)
-          left = width - mediaWidth - padding * 2 + 18
-        if (!isAttachmentAfterFirstSpace) left -= 5.25
-
-        setStyles(
-          StyleSheet.create({
-            mediaContainer: {
-              position: 'absolute',
-              top,
-              left,
-              borderRadius: borderRadius + padding,
-              padding,
-            },
-            media: {
-              aspectRatio,
-              width: mediaWidth,
-              borderRadius,
-            },
-          }),
-        )
-      } else if (attachment.type === 'audio') {
-        const top = (height - audioPlayerHeight) / 2 - padding
-
-        let left = (width - audioPlayerWidth) / 2 + 5.25
-        if (pageX + left < 0) left = 0
-        if (pageX + left + audioPlayerWidth > screenWidth)
-          left = width - audioPlayerWidth + 18
-        if (!isAttachmentAfterFirstSpace) left -= 5.25
-
-        setStyles(
-          StyleSheet.create({
-            mediaContainer: {
-              position: 'absolute',
-              top,
-              left,
-              borderRadius: 100,
-              paddingHorizontal: 16,
-              paddingVertical: 8,
-            },
-          }),
-        )
-      }
-    })
-  }
-
   return Platform.OS === 'ios' ? (
     <AnimatedGradient
       animatedProps={animatedColors}

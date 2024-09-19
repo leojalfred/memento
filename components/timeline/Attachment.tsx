@@ -6,7 +6,14 @@ import type { AttachmentData } from '@/types'
 import { Audio, ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, Text, View } from 'react-native'
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  type LayoutChangeEvent,
+} from 'react-native'
 import Animated, {
   interpolateColor,
   useAnimatedProps,
@@ -24,6 +31,13 @@ interface AttachmentProps {
   sortedAttachments: AttachmentData[]
   isEditing: boolean
 }
+
+const mediaWidth = 128
+let padding = 4
+let borderRadius = 8
+
+const audioPlayerHeight = 28.3
+const audioPlayerWidth = 172
 
 export default function Attachment({
   i,
@@ -120,8 +134,79 @@ export default function Attachment({
     }
   }, [isSoundPlaying, sound])
 
-  const text = value.slice(attachment.start, attachment.end)
+  const { width: screenWidth } = useWindowDimensions()
   const [styles, setStyles] = useState<any>()
+  const onLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      if (isEditing) return
+
+      const isAttachmentAfterFirstSpace = attachment.start > value.indexOf(' ')
+      event.target.measure((x, y, width, height, pageX, pageY) => {
+        if (['image', 'video'].includes(attachment.type)) {
+          const scaledAttachmentHeight =
+            (mediaWidth / attachment.width!) * attachment.height!
+
+          const aspectRatio = attachment.width! / attachment.height!
+          const top = (height - scaledAttachmentHeight) / 2 - padding
+
+          let left = (width - mediaWidth) / 2 - padding + 5.25
+          if (pageX + left < 0) left = 0
+          if (pageX + left + mediaWidth + padding * 2 > screenWidth)
+            left = width - mediaWidth - padding * 2 + 18
+          if (!isAttachmentAfterFirstSpace) left -= 5.25
+
+          setStyles(
+            StyleSheet.create({
+              mediaContainer: {
+                position: 'absolute',
+                top,
+                left,
+                borderRadius: borderRadius + padding,
+                padding,
+              },
+              media: {
+                aspectRatio,
+                width: mediaWidth,
+                borderRadius,
+              },
+            }),
+          )
+        } else if (attachment.type === 'audio') {
+          const top = (height - audioPlayerHeight) / 2 - padding
+
+          let left = (width - audioPlayerWidth) / 2 + 5.25
+          if (pageX + left < 0) left = 0
+          if (pageX + left + audioPlayerWidth > screenWidth)
+            left = width - audioPlayerWidth + 18
+          if (!isAttachmentAfterFirstSpace) left -= 5.25
+
+          setStyles(
+            StyleSheet.create({
+              mediaContainer: {
+                position: 'absolute',
+                top,
+                left,
+                borderRadius: 100,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+              },
+            }),
+          )
+        }
+      })
+    },
+    [
+      isEditing,
+      attachment.start,
+      attachment.type,
+      attachment.height,
+      attachment.width,
+      screenWidth,
+      value,
+    ],
+  )
+
+  const text = value.slice(attachment.start, attachment.end)
   const media = useMemo(() => {
     if (!styles) return null
 
@@ -173,10 +258,7 @@ export default function Attachment({
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
         colorPair={attachment.colorPair}
-        isEditing={isEditing}
-        attachment={attachment}
-        isAttachmentAfterFirstSpace={attachment.start > value.indexOf(' ')}
-        setStyles={setStyles}
+        onLayout={onLayout}
       >
         {text.split(/(\p{Emoji_Presentation})/u).map((part, j) =>
           part.match(/\p{Emoji_Presentation}/u) ? (
