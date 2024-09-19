@@ -22,6 +22,7 @@ interface AttachmentTextProps {
   colorPair: [string, string]
   isEditing: boolean
   attachment: AttachmentData
+  isAttachmentAfterFirstSpace: boolean
   setStyles: React.Dispatch<React.SetStateAction<any>>
   children: React.ReactNode
 }
@@ -40,6 +41,7 @@ export default function AttachmentText({
   colorPair,
   isEditing,
   attachment,
+  isAttachmentAfterFirstSpace,
   setStyles,
   children,
 }: AttachmentTextProps) {
@@ -60,6 +62,7 @@ export default function AttachmentText({
         if (pageX + left < 0) left = 0
         if (pageX + left + mediaWidth + padding * 2 > screenWidth)
           left = width - mediaWidth - padding * 2 + 18
+        if (!isAttachmentAfterFirstSpace) left -= 5.25
 
         setStyles(
           StyleSheet.create({
@@ -84,6 +87,7 @@ export default function AttachmentText({
         if (pageX + left < 0) left = 0
         if (pageX + left + audioPlayerWidth > screenWidth)
           left = width - audioPlayerWidth + 18
+        if (!isAttachmentAfterFirstSpace) left -= 5.25
 
         setStyles(
           StyleSheet.create({

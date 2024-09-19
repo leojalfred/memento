@@ -175,6 +175,7 @@ export default function Attachment({
         colorPair={attachment.colorPair}
         isEditing={isEditing}
         attachment={attachment}
+        isAttachmentAfterFirstSpace={attachment.start > value.indexOf(' ')}
         setStyles={setStyles}
       >
         {text.split(/(\p{Emoji_Presentation})/u).map((part, j) =>
