@@ -55,7 +55,11 @@ export default function AttachmentText({
 
         const aspectRatio = attachment.width! / attachment.height!
         const top = (height - scaledAttachmentHeight) / 2 - padding
-        const left = (width - mediaWidth) / 2 - padding + 5.25
+
+        let left = (width - mediaWidth) / 2 - padding + 5.25
+        if (pageX + left < 0) left = 0
+        if (pageX + left + mediaWidth + padding * 2 > screenWidth)
+          left = width - mediaWidth - padding * 2 + 18
 
         setStyles(
           StyleSheet.create({
