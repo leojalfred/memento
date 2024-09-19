@@ -3,7 +3,7 @@ import IconButton from '@/components/IconButton'
 import AttachmentText from '@/components/timeline/AttachmentText'
 import Waveform from '@/components/Waveform'
 import type { AttachmentData } from '@/types'
-import { Audio, Video } from 'expo-av'
+import { Audio, ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Platform, Text, View } from 'react-native'
@@ -140,6 +140,7 @@ export default function Attachment({
           style={styles.media}
           shouldPlay={!isEditing}
           isLooping
+          resizeMode={ResizeMode.CONTAIN}
         />
       )
     } else if (attachment.type === 'audio') {
