@@ -6,7 +6,7 @@ import type { AttachmentData } from '@/types'
 import { Audio, Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { LayoutRectangle, Platform, StyleSheet, Text, View } from 'react-native'
+import { Platform, Text, View } from 'react-native'
 import Animated, {
   interpolateColor,
   useAnimatedProps,
@@ -24,13 +24,6 @@ interface AttachmentProps {
   sortedAttachments: AttachmentData[]
   isEditing: boolean
 }
-
-const width = 128
-let padding = 4
-let borderRadius = 8
-
-const audioPlayerHeight = 28.3
-const audioPlayerWidth = 172
 
 export default function Attachment({
   i,
@@ -77,48 +70,6 @@ export default function Attachment({
     ),
   }))
 
-  const [attachmentTextLayout, setAttachmentTextLayout] =
-    useState<LayoutRectangle>()
-  const text = value.slice(attachment.start, attachment.end)
-  let aspectRatio = null
-  let top = -9.075 // -36.3 [height] / 4 = -9.075
-  let left = attachment.start === 0 ? -5.25 : 0
-
-  if (['image', 'video'].includes(attachment.type) && attachmentTextLayout) {
-    const scaledAttachmentHeight =
-      (width / attachment.width!) * attachment.height!
-
-    aspectRatio = attachment.width! / attachment.height!
-    top = (attachmentTextLayout.height - scaledAttachmentHeight) / 2 - padding
-    left = (attachmentTextLayout.width - width) / 2 - padding + 5.25
-  } else if (attachment.type === 'audio' && attachmentTextLayout) {
-    top = (attachmentTextLayout.height - audioPlayerHeight) / 2 - padding
-    left = (attachmentTextLayout.width - audioPlayerWidth) / 2 + 5.25
-  }
-
-  const styles = useMemo(() => {
-    return attachment.type === 'audio'
-      ? StyleSheet.create({
-          mediaContainer: {
-            position: 'absolute',
-            top,
-            left,
-            borderRadius: 100,
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-          },
-        })
-      : StyleSheet.create({
-          mediaContainer: {
-            position: 'absolute',
-            top,
-            left,
-            borderRadius: borderRadius + padding,
-            padding,
-          },
-        })
-  }, [attachment.type, top, left])
-
   const [sound, setSound] = useState<Audio.Sound>()
   const [isSoundPlaying, setIsSoundPlaying] = useState(false)
   const loadSound = useCallback(async () => {
@@ -159,7 +110,7 @@ export default function Attachment({
       : undefined
   }, [sound])
 
-  async function toggleSoundPlayback() {
+  const toggleSoundPlayback = useCallback(async () => {
     if (isSoundPlaying) {
       await sound?.pauseAsync()
       setIsSoundPlaying(false)
@@ -167,47 +118,52 @@ export default function Attachment({
       await sound?.playAsync()
       setIsSoundPlaying(true)
     }
-  }
+  }, [isSoundPlaying, sound])
 
-  let media
-  if (attachment.type === 'image') {
-    media = (
-      <Image
-        source={{ uri: attachment.uri }}
-        alt={text}
-        style={{
-          aspectRatio: aspectRatio!,
-          width,
-          borderRadius,
-        }}
-      />
-    )
-  } else if (attachment.type === 'video') {
-    media = (
-      <Video
-        source={{ uri: attachment.uri }}
-        style={{
-          aspectRatio: aspectRatio!,
-          width,
-          borderRadius,
-        }}
-        shouldPlay={!isEditing}
-        isLooping
-      />
-    )
-  } else if (attachment.type === 'audio') {
-    media = (
-      <View className="w-[140px] flex-row items-center justify-between">
-        <IconButton
-          className="pr-4"
-          icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
-          onPress={toggleSoundPlayback}
-          disabled={isEditing}
+  const text = value.slice(attachment.start, attachment.end)
+  const [styles, setStyles] = useState<any>()
+  const media = useMemo(() => {
+    if (!styles) return null
+
+    if (attachment.type === 'image') {
+      return (
+        <Image
+          source={{ uri: attachment.uri }}
+          alt={text}
+          style={styles.media}
         />
-        <Waveform count={24} isPlaying={isSoundPlaying} />
-      </View>
-    )
-  }
+      )
+    } else if (attachment.type === 'video') {
+      return (
+        <Video
+          source={{ uri: attachment.uri }}
+          style={styles.media}
+          shouldPlay={!isEditing}
+          isLooping
+        />
+      )
+    } else if (attachment.type === 'audio') {
+      return (
+        <View className="w-[140px] flex-row items-center justify-between">
+          <IconButton
+            className="pr-4"
+            icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
+            onPress={toggleSoundPlayback}
+            disabled={isEditing}
+          />
+          <Waveform count={24} isPlaying={isSoundPlaying} />
+        </View>
+      )
+    }
+  }, [
+    attachment.type,
+    attachment.uri,
+    isEditing,
+    isSoundPlaying,
+    styles,
+    text,
+    toggleSoundPlayback,
+  ])
 
   return (
     <View>
@@ -216,7 +172,9 @@ export default function Attachment({
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
         colorPair={attachment.colorPair}
-        setAttachmentTextLayout={setAttachmentTextLayout}
+        isEditing={isEditing}
+        attachment={attachment}
+        setStyles={setStyles}
       >
         {text.split(/(\p{Emoji_Presentation})/u).map((part, j) =>
           part.match(/\p{Emoji_Presentation}/u) ? (
@@ -228,20 +186,26 @@ export default function Attachment({
           ),
         )}
       </AttachmentText>
-      {Platform.OS === 'ios' ? (
-        <AnimatedGradient
-          animatedProps={animatedColors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          colors={attachment.colorPair}
-          style={[styles.mediaContainer]}
-        >
-          {media}
-        </AnimatedGradient>
-      ) : (
-        <Animated.View style={[animatedBackgroundColor, styles.mediaContainer]}>
-          {media}
-        </Animated.View>
+      {media && (
+        <>
+          {Platform.OS === 'ios' ? (
+            <AnimatedGradient
+              animatedProps={animatedColors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              colors={attachment.colorPair}
+              style={[styles.mediaContainer]}
+            >
+              {media}
+            </AnimatedGradient>
+          ) : (
+            <Animated.View
+              style={[animatedBackgroundColor, styles.mediaContainer]}
+            >
+              {media}
+            </Animated.View>
+          )}
+        </>
       )}
     </View>
   )
