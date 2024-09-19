@@ -1,5 +1,5 @@
 name: Typecheck, Lint, and Test Upon Push
-run-name: Typechecking, linting, and testing ${{ github.ref_name }}
+run-name: ${{ github.event.head_commit.message }}
 on: [push]
 permissions:
   contents: read
