@@ -5,6 +5,7 @@ import {
   Platform,
   StyleSheet,
   Text,
+  useWindowDimensions,
   type LayoutChangeEvent,
 } from 'react-native'
 import Animated from 'react-native-reanimated'
@@ -42,52 +43,58 @@ export default function AttachmentText({
   setStyles,
   children,
 }: AttachmentTextProps) {
+  const { width: screenWidth } = useWindowDimensions()
+
   function onLayout(event: LayoutChangeEvent) {
     if (isEditing) return
 
-    const { width, height } = event.nativeEvent.layout
+    event.target.measure((x, y, width, height, pageX, pageY) => {
+      if (['image', 'video'].includes(attachment.type)) {
+        const scaledAttachmentHeight =
+          (mediaWidth / attachment.width!) * attachment.height!
 
-    if (['image', 'video'].includes(attachment.type)) {
-      const scaledAttachmentHeight =
-        (mediaWidth / attachment.width!) * attachment.height!
+        const aspectRatio = attachment.width! / attachment.height!
+        const top = (height - scaledAttachmentHeight) / 2 - padding
+        const left = (width - mediaWidth) / 2 - padding + 5.25
 
-      const aspectRatio = attachment.width! / attachment.height!
-      const top = (height - scaledAttachmentHeight) / 2 - padding
-      const left = (width - mediaWidth) / 2 - padding + 5.25
+        setStyles(
+          StyleSheet.create({
+            mediaContainer: {
+              position: 'absolute',
+              top,
+              left,
+              borderRadius: borderRadius + padding,
+              padding,
+            },
+            media: {
+              aspectRatio,
+              width: mediaWidth,
+              borderRadius,
+            },
+          }),
+        )
+      } else if (attachment.type === 'audio') {
+        const top = (height - audioPlayerHeight) / 2 - padding
 
-      setStyles(
-        StyleSheet.create({
-          mediaContainer: {
-            position: 'absolute',
-            top,
-            left,
-            borderRadius: borderRadius + padding,
-            padding,
-          },
-          media: {
-            aspectRatio,
-            width: mediaWidth,
-            borderRadius,
-          },
-        }),
-      )
-    } else if (attachment.type === 'audio') {
-      const top = (height - audioPlayerHeight) / 2 - padding
-      const left = (width - audioPlayerWidth) / 2 + 5.25
+        let left = (width - audioPlayerWidth) / 2 + 5.25
+        if (pageX + left < 0) left = 0
+        if (pageX + left + audioPlayerWidth > screenWidth)
+          left = width - audioPlayerWidth + 18
 
-      setStyles(
-        StyleSheet.create({
-          mediaContainer: {
-            position: 'absolute',
-            top,
-            left,
-            borderRadius: 100,
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-          },
-        }),
-      )
-    }
+        setStyles(
+          StyleSheet.create({
+            mediaContainer: {
+              position: 'absolute',
+              top,
+              left,
+              borderRadius: 100,
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+            },
+          }),
+        )
+      }
+    })
   }
 
   return Platform.OS === 'ios' ? (
