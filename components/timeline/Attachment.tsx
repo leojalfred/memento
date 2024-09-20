@@ -1,19 +1,18 @@
-import AnimatedGradient from '@/components/AnimatedGradient'
-import AttachmentAudio from '@/components/timeline/AttachmentAudio'
+import AttachmentMedia, {
+  AttachmentMediaStyles,
+} from '@/components/timeline/AttachmentMedia'
 import AttachmentText from '@/components/timeline/AttachmentText'
 import type { AttachmentData } from '@/types'
-import { Audio, ResizeMode, Video } from 'expo-av'
-import { Image } from 'expo-image'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Audio } from 'expo-av'
+import { useCallback, useEffect, useState } from 'react'
 import {
-  Platform,
   StyleSheet,
   Text,
   View,
   useWindowDimensions,
   type LayoutChangeEvent,
 } from 'react-native'
-import Animated, {
+import {
   interpolateColor,
   useAnimatedProps,
   useAnimatedStyle,
@@ -104,7 +103,7 @@ export default function Attachment({
   }, [attachment.type, loadSound])
 
   const { width: screenWidth } = useWindowDimensions()
-  const [styles, setStyles] = useState<any>()
+  const [styles, setStyles] = useState<AttachmentMediaStyles>()
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
       if (isEditing) return
@@ -176,31 +175,6 @@ export default function Attachment({
   )
 
   const text = value.slice(attachment.start, attachment.end)
-  const media = useMemo(() => {
-    if (!styles) return null
-
-    if (attachment.type === 'image') {
-      return (
-        <Image
-          source={{ uri: attachment.uri }}
-          alt={text}
-          style={styles.media}
-        />
-      )
-    } else if (attachment.type === 'video') {
-      return (
-        <Video
-          source={{ uri: attachment.uri }}
-          style={styles.media}
-          shouldPlay={!isEditing}
-          isLooping
-          resizeMode={ResizeMode.CONTAIN}
-        />
-      )
-    } else if (attachment.type === 'audio') {
-      return <AttachmentAudio sound={sound} isEditing={isEditing} />
-    }
-  }, [attachment.type, attachment.uri, isEditing, styles, text, sound])
 
   return (
     <View>
@@ -221,27 +195,14 @@ export default function Attachment({
           ),
         )}
       </AttachmentText>
-      {media && (
-        <>
-          {Platform.OS === 'ios' ? (
-            <AnimatedGradient
-              animatedProps={animatedColors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              colors={attachment.colorPair}
-              style={[styles.mediaContainer]}
-            >
-              {media}
-            </AnimatedGradient>
-          ) : (
-            <Animated.View
-              style={[animatedBackgroundColor, styles.mediaContainer]}
-            >
-              {media}
-            </Animated.View>
-          )}
-        </>
-      )}
+      <AttachmentMedia
+        attachment={attachment}
+        isEditing={isEditing}
+        styles={styles}
+        text={text}
+        animatedColors={animatedColors}
+        animatedBackgroundColor={animatedBackgroundColor}
+      />
     </View>
   )
 }
