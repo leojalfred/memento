@@ -1,13 +1,13 @@
 import Divider from '@/components/Divider'
 import IconButton from '@/components/IconButton'
+import Waveform from '@/components/Waveform'
 import { androidColorPairs, colors, iosColorPairs } from '@/constants/colors'
 import type { AttachmentData, AttachmentType, Selection } from '@/types'
 import { yap } from '@/utils/logging'
-import { Audio } from 'expo-av'
+import { Audio, InterruptionModeIOS } from 'expo-av'
 import * as ImagePicker from 'expo-image-picker'
-import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Platform, useColorScheme, View } from 'react-native'
-import { BarIndicator } from 'react-native-indicators'
+import { useEffect, useState } from 'react'
+import { ActivityIndicator, Platform, View, useColorScheme } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -26,32 +26,34 @@ export default function MediaPicker({
   disabled,
 }: MediaPickerProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const pushAttachment = useCallback(
-    (type: AttachmentType, uri: string, height?: number, width?: number) => {
-      const colorPair =
-        Platform.OS === 'ios'
-          ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
-          : androidColorPairs[
-              Math.floor(Math.random() * androidColorPairs.length)
-            ]
+  function pushAttachment(
+    type: AttachmentType,
+    uri: string,
+    height?: number,
+    width?: number,
+  ) {
+    const colorPair =
+      Platform.OS === 'ios'
+        ? iosColorPairs[Math.floor(Math.random() * iosColorPairs.length)]
+        : androidColorPairs[
+            Math.floor(Math.random() * androidColorPairs.length)
+          ]
 
-      setAttachments((attachments) => [
-        ...attachments,
-        {
-          start: selection.start,
-          end: selection.end,
-          type,
-          uri,
-          height,
-          width,
-          colorPair,
-        },
-      ])
-    },
-    [setAttachments, selection.start, selection.end],
-  )
+    setAttachments((attachments) => [
+      ...attachments,
+      {
+        start: selection.start,
+        end: selection.end,
+        type,
+        uri,
+        height,
+        width,
+        colorPair,
+      },
+    ])
+  }
 
-  const pickMedia = async (type: 'image' | 'video') => {
+  async function pickMedia(type: 'image' | 'video') {
     setIsLoading(true)
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:
@@ -78,51 +80,81 @@ export default function MediaPicker({
     opacity: loaderOpacity.value,
   }))
 
-  const [recording, setRecording] = useState<Audio.Recording>()
   const [permissionResponse, requestPermission] = Audio.usePermissions()
+  const [recording, setRecording] = useState(new Audio.Recording())
+  const [isRecordingPrepared, setIsRecordingPrepared] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+
+  useEffect(() => {
+    const prepareRecording = async () => {
+      setIsRecordingPrepared(true)
+
+      try {
+        if (permissionResponse?.status !== 'granted') {
+          yap('Requesting permission..')
+          await requestPermission()
+        }
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        })
+
+        await recording.prepareToRecordAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        )
+      } catch (error) {
+        setIsRecordingPrepared(false)
+        console.error('Failed to prepare recording:', error)
+      }
+    }
+
+    if (!isRecordingPrepared) prepareRecording()
+  }, [permissionResponse, requestPermission, recording, isRecordingPrepared])
+
   async function startRecording() {
     try {
-      if (permissionResponse?.status !== 'granted') {
-        yap('Requesting permission..')
-        await requestPermission()
+      if (isRecordingPrepared) {
+        yap('Starting recording..')
+        await recording.startAsync()
+        setIsRecording(true)
       }
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      })
-
-      yap('Starting recording..')
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      )
-      setRecording(recording)
-      yap('Recording started')
-    } catch (err) {
-      console.error('Failed to start recording', err)
+    } catch (error) {
+      console.error('Failed to start recording:', error)
     }
   }
+
   async function stopRecording() {
-    yap('Stopping recording..')
+    try {
+      yap('Stopping recording..')
 
-    setRecording(undefined)
-    await recording?.stopAndUnloadAsync()
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-    })
+      await recording.stopAndUnloadAsync()
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      })
 
-    const uri = recording?.getURI()
-    if (uri) {
-      pushAttachment('audio', uri)
-      yap('Recording stopped and stored at', uri)
+      setRecording(new Audio.Recording())
+      setIsRecording(false)
+      setIsRecordingPrepared(false)
+
+      const uri = recording.getURI()
+      if (uri) {
+        pushAttachment('audio', uri)
+        yap('Recording stopped and stored at', uri)
+      }
+    } catch (error) {
+      console.error('Failed to stop recording:', error)
     }
   }
 
   const mediaPickerWidth = useSharedValue(148)
   useEffect(() => {
-    mediaPickerWidth.value = withTiming(recording ? 130 : 148, {
+    mediaPickerWidth.value = withTiming(isRecording ? 174 : 148, {
       duration: 200,
     })
-  }, [recording, mediaPickerWidth])
+  }, [isRecording, mediaPickerWidth])
   const mediaPickerAnimation = useAnimatedStyle(() => ({
     width: mediaPickerWidth.value,
   }))
@@ -130,13 +162,13 @@ export default function MediaPicker({
   const nonAudioOpacity = useSharedValue(1)
   const nonAudioWidth = useSharedValue(98)
   useEffect(() => {
-    nonAudioOpacity.value = withTiming(recording ? 0 : 1, {
+    nonAudioOpacity.value = withTiming(isRecording ? 0 : 1, {
       duration: 200,
     })
-    nonAudioWidth.value = withTiming(recording ? 0 : 98, {
+    nonAudioWidth.value = withTiming(isRecording ? 0 : 98, {
       duration: 200,
     })
-  }, [recording, nonAudioOpacity, nonAudioWidth])
+  }, [isRecording, nonAudioOpacity, nonAudioWidth])
   const nonAudioAnimation = useAnimatedStyle(() => ({
     display:
       nonAudioOpacity.value === 0 && nonAudioWidth.value === 0
@@ -150,16 +182,16 @@ export default function MediaPicker({
   const wavePaddingLeft = useSharedValue(0)
   const waveWidth = useSharedValue(0)
   useEffect(() => {
-    waveOpacity.value = withTiming(recording ? 1 : 0, {
+    waveOpacity.value = withTiming(isRecording ? 1 : 0, {
       duration: 200,
     })
-    wavePaddingLeft.value = withTiming(recording ? 16 : 0, {
+    wavePaddingLeft.value = withTiming(isRecording ? 16 : 0, {
       duration: 200,
     })
-    waveWidth.value = withTiming(recording ? 80 : 0, {
+    waveWidth.value = withTiming(isRecording ? 124 : 0, {
       duration: 200,
     })
-  }, [recording, waveOpacity, wavePaddingLeft, waveWidth])
+  }, [isRecording, waveOpacity, wavePaddingLeft, waveWidth])
   const waveAnimation = useAnimatedStyle(() => ({
     display:
       waveOpacity.value === 0 &&
@@ -177,17 +209,19 @@ export default function MediaPicker({
   return (
     <View className="flex-row items-center justify-between">
       <Animated.View
-        className="box-border flex-row overflow-hidden rounded-full border border-gray-700 dark:border-gray-300"
+        className="box-border flex-row items-center overflow-hidden rounded-full border border-gray-700 dark:border-gray-300"
         style={mediaPickerAnimation}
       >
         <Animated.View className="flex-row" style={nonAudioAnimation}>
           <IconButton
+            className="px-4 py-1"
             icon="image"
             onPress={() => pickMedia('image')}
             disabled={disabled}
           />
           <Divider />
           <IconButton
+            className="px-4 py-1"
             icon="video"
             onPress={() => pickMedia('video')}
             disabled={disabled}
@@ -195,16 +229,12 @@ export default function MediaPicker({
           <Divider />
         </Animated.View>
         <Animated.View style={waveAnimation}>
-          <BarIndicator
-            animationDuration={900}
-            color={scheme === 'light' ? colors.gray[700] : colors.gray[300]}
-            count={16}
-            size={12}
-          />
+          <Waveform count={24} isPlaying={isRecording} />
         </Animated.View>
         <IconButton
-          icon={recording ? 'stop-circle' : 'mic'}
-          onPress={recording ? stopRecording : startRecording}
+          className="px-4 py-1"
+          icon={isRecording ? 'stop-circle' : 'mic'}
+          onPress={isRecording ? stopRecording : startRecording}
           disabled={disabled}
         />
       </Animated.View>

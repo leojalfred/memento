@@ -1,5 +1,6 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
-import { Platform, Text } from 'react-native'
+import React from 'react'
+import { Platform, Text, type LayoutChangeEvent } from 'react-native'
 import Animated from 'react-native-reanimated'
 import { twMerge } from 'tailwind-merge'
 
@@ -12,7 +13,7 @@ interface AttachmentTextProps {
     backgroundColor: string
   }
   colorPair: [string, string]
-  setTextWidth: React.Dispatch<React.SetStateAction<number | undefined>>
+  onLayout: (event: LayoutChangeEvent) => void
   children: React.ReactNode
 }
 
@@ -21,7 +22,7 @@ export default function AttachmentText({
   animatedColors,
   animatedBackgroundColor,
   colorPair,
-  setTextWidth,
+  onLayout,
   children,
 }: AttachmentTextProps) {
   return Platform.OS === 'ios' ? (
@@ -31,7 +32,7 @@ export default function AttachmentText({
       end={{ x: 1, y: 0 }}
       className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
       colors={colorPair}
-      onLayout={(event) => setTextWidth(event.nativeEvent.layout.width)}
+      onLayout={onLayout}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
     </AnimatedGradient>
@@ -39,7 +40,7 @@ export default function AttachmentText({
     <Animated.View
       style={animatedBackgroundColor}
       className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
-      onLayout={(event) => setTextWidth(event.nativeEvent.layout.width)}
+      onLayout={onLayout}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
     </Animated.View>

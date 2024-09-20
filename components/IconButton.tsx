@@ -7,12 +7,14 @@ import {
 } from 'react-native'
 
 interface IconButtonProps {
+  className?: string
   icon: keyof typeof Feather.glyphMap
   onPress?: ((event: GestureResponderEvent) => void) | undefined
   disabled?: boolean
 }
 
 export default function IconButton({
+  className,
   icon,
   onPress,
   disabled,
@@ -21,7 +23,7 @@ export default function IconButton({
 
   return (
     <TouchableOpacity
-      className="px-4 py-1"
+      className={className}
       onPress={onPress}
       disabled={disabled}
     >

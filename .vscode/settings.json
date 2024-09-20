@@ -12,5 +12,6 @@
     "sitch",
     "tryna",
     "vibin"
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

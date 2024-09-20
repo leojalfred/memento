@@ -1,5 +1,5 @@
-name: Lint and Test Upon Push
-run-name: Linting and Testing ${{ github.ref_name }}
+name: Typecheck, Lint, and Test Upon Push
+run-name: ${{ github.event.head_commit.message }}
 on: [push]
 permissions:
   contents: read
@@ -13,6 +13,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - name: Install dependencies
         run: bun install
+      - name: Typecheck codebase
+        run: bun run typecheck
       - name: Lint codebase
         run: bun run lint
       - name: Run tests

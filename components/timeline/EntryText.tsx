@@ -24,7 +24,7 @@ export default function EntryText({
           previousText.split(' ').forEach((word, j) => {
             acc.push(
               <Text
-                key={`previous-${i}-${j}`}
+                key={`previous-${attachment.start}-${attachment.end}-${j}`}
                 className="font-cp -z-[1] ml-2.5 leading-[1.3125] text-zinc-900 dark:text-zinc-100"
               >
                 {word}
@@ -34,7 +34,7 @@ export default function EntryText({
 
           acc.push(
             <Attachment
-              key={`attachment-${i}`}
+              key={`attachment-${attachment.start}-${attachment.end}`}
               i={i}
               value={value}
               attachment={attachment}
@@ -48,7 +48,7 @@ export default function EntryText({
             remainingText.split(' ').forEach((word, j) => {
               acc.push(
                 <Text
-                  key={`remaining-${i}-${j}`}
+                  key={`remaining-${attachment.start}-${attachment.end}-${j}`}
                   className="font-cp -z-[1] ml-2.5 leading-[1.3125] text-zinc-900 dark:text-zinc-100"
                 >
                   {word}
