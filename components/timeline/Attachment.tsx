@@ -1,7 +1,6 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
-import IconButton from '@/components/IconButton'
+import AttachmentAudio from '@/components/timeline/AttachmentAudio'
 import AttachmentText from '@/components/timeline/AttachmentText'
-import Waveform from '@/components/Waveform'
 import type { AttachmentData } from '@/types'
 import { Audio, ResizeMode, Video } from 'expo-av'
 import { Image } from 'expo-image'
@@ -10,8 +9,8 @@ import {
   Platform,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
+  useWindowDimensions,
   type LayoutChangeEvent,
 } from 'react-native'
 import Animated, {
@@ -85,7 +84,6 @@ export default function Attachment({
   }))
 
   const [sound, setSound] = useState<Audio.Sound>()
-  const [isSoundPlaying, setIsSoundPlaying] = useState(false)
   const loadSound = useCallback(async () => {
     const status = await sound?.getStatusAsync()
     if (status?.isLoaded) return
@@ -104,35 +102,6 @@ export default function Attachment({
       loadSound()
     }
   }, [attachment.type, loadSound])
-
-  // pause sound on edit
-  useEffect(() => {
-    if (sound) {
-      if (isEditing) {
-        sound.pauseAsync()
-        setIsSoundPlaying(false)
-      }
-    }
-  }, [sound, isEditing])
-
-  // unload sound on unmount
-  useEffect(() => {
-    return sound
-      ? () => {
-          sound.unloadAsync()
-        }
-      : undefined
-  }, [sound])
-
-  const toggleSoundPlayback = useCallback(async () => {
-    if (isSoundPlaying) {
-      await sound?.pauseAsync()
-      setIsSoundPlaying(false)
-    } else {
-      await sound?.playAsync()
-      setIsSoundPlaying(true)
-    }
-  }, [isSoundPlaying, sound])
 
   const { width: screenWidth } = useWindowDimensions()
   const [styles, setStyles] = useState<any>()
@@ -229,27 +198,9 @@ export default function Attachment({
         />
       )
     } else if (attachment.type === 'audio') {
-      return (
-        <View className="w-[140px] flex-row items-center justify-between">
-          <IconButton
-            className="pr-4"
-            icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
-            onPress={toggleSoundPlayback}
-            disabled={isEditing}
-          />
-          <Waveform count={24} isPlaying={isSoundPlaying} />
-        </View>
-      )
+      return <AttachmentAudio sound={sound} isEditing={isEditing} />
     }
-  }, [
-    attachment.type,
-    attachment.uri,
-    isEditing,
-    isSoundPlaying,
-    styles,
-    text,
-    toggleSoundPlayback,
-  ])
+  }, [attachment.type, attachment.uri, isEditing, styles, text, sound])
 
   return (
     <View>
