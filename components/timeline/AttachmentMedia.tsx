@@ -103,7 +103,7 @@ export default function AttachmentMedia({
           (mediaContainerY - middleScreenStart) / spaceBetweenSweetSpot - 0.5
 
         opacity.value = withTiming(1, { duration: 200 })
-        sharedTop.value = top + 32 * pt
+        sharedTop.value = top + 24 * pt
 
         if (!isMediaVisible) runOnJS(setIsMediaVisible)(true)
       } else {
