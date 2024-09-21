@@ -11,6 +11,7 @@ import {
   ViewStyle,
 } from 'react-native'
 import Animated, {
+  runOnJS,
   SharedValue,
   useAnimatedReaction,
   useAnimatedStyle,
@@ -79,6 +80,7 @@ export default function AttachmentMedia({
   const { height } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const visibleScreenHeight = height - insets.top - insets.bottom
+  const [isVisible, setIsVisible] = useState(false)
 
   const opacity = useSharedValue(0)
   useAnimatedReaction(
@@ -91,9 +93,11 @@ export default function AttachmentMedia({
         mediaContainerY >= middleScreenStart &&
         mediaContainerY <= middleScreenEnd
       ) {
-        opacity.value = withTiming(1, { duration: 300 })
+        opacity.value = withTiming(1, { duration: 200 })
+        runOnJS(setIsVisible)(true)
       } else {
-        opacity.value = withTiming(0, { duration: 300 })
+        opacity.value = withTiming(0, { duration: 200 })
+        runOnJS(setIsVisible)(false)
       }
     },
     [scrollY, visibleScreenHeight, mediaContainerY],
@@ -118,7 +122,7 @@ export default function AttachmentMedia({
         <Video
           source={{ uri: attachment.uri }}
           style={styles.media}
-          shouldPlay={!isEditing}
+          shouldPlay={isVisible && !isEditing}
           isLooping
           resizeMode={ResizeMode.CONTAIN}
         />
@@ -126,7 +130,15 @@ export default function AttachmentMedia({
     } else if (attachment.type === 'audio') {
       return <AttachmentAudio sound={sound} isEditing={isEditing} />
     }
-  }, [attachment.type, attachment.uri, isEditing, styles, text, sound])
+  }, [
+    attachment.type,
+    attachment.uri,
+    isVisible,
+    isEditing,
+    styles,
+    text,
+    sound,
+  ])
 
   return (
     media && (
