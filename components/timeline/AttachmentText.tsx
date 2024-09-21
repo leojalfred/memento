@@ -45,7 +45,7 @@ export default function AttachmentText({
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
+      className={twMerge('-z-[1] -mr-1 ml-1.5 rounded-sm px-1', className)}
       colors={colorPair}
       onLayout={onLayout}
     >
@@ -54,7 +54,7 @@ export default function AttachmentText({
   ) : (
     <Animated.View
       style={[animatedBackgroundColor, opacityAnimation]}
-      className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
+      className={twMerge('-z-[1] -mr-1 ml-1.5 rounded-sm px-1', className)}
       onLayout={onLayout}
     >
       <Text className="font-cp leading-[1.3125] text-white">{children}</Text>
