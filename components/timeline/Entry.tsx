@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Pressable } from 'react-native'
 import Animated, {
+  type SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -20,6 +21,7 @@ interface EntryProps {
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>
   selection: Selection
   setSelection: React.Dispatch<React.SetStateAction<Selection>>
+  scrollY: SharedValue<number>
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -29,6 +31,7 @@ export default function Entry({
   setIsEditing,
   selection,
   setSelection,
+  scrollY,
 }: EntryProps) {
   const { control, getValues } = useForm<z.infer<typeof entrySchema>>({
     resolver: zodResolver(entrySchema),
@@ -101,6 +104,7 @@ export default function Entry({
           value={value}
           sortedAttachments={sortedAttachments}
           isEditing={isEditing}
+          scrollY={scrollY}
         />
       </AnimatedPressable>
       <Animated.View style={inputAnimation}>

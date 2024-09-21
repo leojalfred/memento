@@ -4,8 +4,15 @@ import type { AttachmentData } from '@/types'
 import { Audio, ResizeMode, Video } from 'expo-av'
 import { Image, ImageStyle } from 'expo-image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, ViewStyle } from 'react-native'
-import Animated from 'react-native-reanimated'
+import { Platform, useWindowDimensions, ViewStyle } from 'react-native'
+import Animated, {
+  SharedValue,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export interface AttachmentMediaStyles {
   mediaContainer: ViewStyle
@@ -23,6 +30,8 @@ interface AttachmentMediaProps {
   animatedBackgroundColor: {
     backgroundColor: string
   }
+  scrollY: SharedValue<number>
+  mediaContainerY: number
 }
 
 export default function AttachmentMedia({
@@ -32,6 +41,8 @@ export default function AttachmentMedia({
   text,
   animatedColors,
   animatedBackgroundColor,
+  scrollY,
+  mediaContainerY,
 }: AttachmentMediaProps) {
   const [sound, setSound] = useState<Audio.Sound>()
   const loadSound = useCallback(async () => {
@@ -52,6 +63,32 @@ export default function AttachmentMedia({
       loadSound()
     }
   }, [attachment.type, loadSound])
+
+  const { height } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
+  const visibleScreenHeight = height - insets.top - insets.bottom
+
+  const opacity = useSharedValue(0)
+  useAnimatedReaction(
+    () => scrollY.value,
+    (scrollPosition) => {
+      const middleScreenStart = scrollPosition + visibleScreenHeight * 0.4
+      const middleScreenEnd = scrollPosition + visibleScreenHeight * 0.6
+
+      if (
+        mediaContainerY >= middleScreenStart &&
+        mediaContainerY <= middleScreenEnd
+      ) {
+        opacity.value = withTiming(1, { duration: 300 })
+      } else {
+        opacity.value = withTiming(0, { duration: 300 })
+      }
+    },
+    [scrollY, mediaContainerY, visibleScreenHeight],
+  )
+  const animatedOpacityStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }))
 
   const media = useMemo(() => {
     if (!styles) return null
@@ -88,13 +125,17 @@ export default function AttachmentMedia({
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             colors={attachment.colorPair}
-            style={[styles?.mediaContainer]}
+            style={[styles?.mediaContainer, animatedOpacityStyle]}
           >
             {media}
           </AnimatedGradient>
         ) : (
           <Animated.View
-            style={[animatedBackgroundColor, styles?.mediaContainer]}
+            style={[
+              styles?.mediaContainer,
+              animatedBackgroundColor,
+              animatedOpacityStyle,
+            ]}
           >
             {media}
           </Animated.View>

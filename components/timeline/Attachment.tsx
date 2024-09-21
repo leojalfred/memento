@@ -8,12 +8,13 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   StyleSheet,
   Text,
-  View,
   useWindowDimensions,
+  View,
   type LayoutChangeEvent,
 } from 'react-native'
 import {
   interpolateColor,
+  SharedValue,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
@@ -28,12 +29,12 @@ interface AttachmentProps {
   attachment: AttachmentData
   sortedAttachments: AttachmentData[]
   isEditing: boolean
+  scrollY: SharedValue<number>
 }
 
 const mediaWidth = 128
-let padding = 4
-let borderRadius = 8
-
+const padding = 4
+const borderRadius = 8
 const audioPlayerHeight = 28.3
 const audioPlayerWidth = 172
 
@@ -43,6 +44,7 @@ export default function Attachment({
   attachment,
   sortedAttachments,
   isEditing,
+  scrollY,
 }: AttachmentProps) {
   const attachmentStartsInWord = value[attachment.start - 1] !== ' '
   const attachmentStartsAtStart = attachment.start === 0
@@ -104,12 +106,14 @@ export default function Attachment({
 
   const { width: screenWidth } = useWindowDimensions()
   const [styles, setStyles] = useState<AttachmentMediaStyles>()
+  const [mediaContainerY, setMediaContainerY] = useState(0)
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
       if (isEditing) return
 
       const isAttachmentAfterFirstSpace = attachment.start > value.indexOf(' ')
       event.target.measure((x, y, width, height, pageX, pageY) => {
+        setMediaContainerY(pageY)
         if (['image', 'video'].includes(attachment.type)) {
           const scaledAttachmentHeight =
             (mediaWidth / attachment.width!) * attachment.height!
@@ -202,6 +206,8 @@ export default function Attachment({
         text={text}
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
+        scrollY={scrollY}
+        mediaContainerY={mediaContainerY}
       />
     </View>
   )
