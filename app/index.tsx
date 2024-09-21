@@ -11,8 +11,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function TimelineScreen() {
   const insets = useSafeAreaInsets()
-  const [isEditing, setIsEditing] = useState(false)
-  const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
 
   const scrollY = useSharedValue(0)
   const scrollViewHeight = useSharedValue(0)
@@ -21,6 +19,9 @@ export default function TimelineScreen() {
       scrollY.value = event.contentOffset.y
     },
   })
+
+  const [isEditing, setIsEditing] = useState(false)
+  const [selection, setSelection] = useState<Selection>({ start: 0, end: 0 })
 
   return (
     <KeyboardAvoidingView

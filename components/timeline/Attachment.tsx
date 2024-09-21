@@ -23,6 +23,12 @@ import {
 } from 'react-native-reanimated'
 import { twMerge } from 'tailwind-merge'
 
+const mediaWidth = 128
+const padding = 4
+const borderRadius = 8
+const audioPlayerHeight = 28.3
+const audioPlayerWidth = 172
+
 interface AttachmentProps {
   i: number
   value: string
@@ -31,12 +37,6 @@ interface AttachmentProps {
   isEditing: boolean
   scrollY: SharedValue<number>
 }
-
-const mediaWidth = 128
-const padding = 4
-const borderRadius = 8
-const audioPlayerHeight = 28.3
-const audioPlayerWidth = 172
 
 export default function Attachment({
   i,
@@ -106,14 +106,12 @@ export default function Attachment({
 
   const { width: screenWidth } = useWindowDimensions()
   const [styles, setStyles] = useState<AttachmentMediaStyles>()
-  const [mediaContainerY, setMediaContainerY] = useState(0)
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
       if (isEditing) return
 
       const isAttachmentAfterFirstSpace = attachment.start > value.indexOf(' ')
       event.target.measure((x, y, width, height, pageX, pageY) => {
-        setMediaContainerY(pageY)
         if (['image', 'video'].includes(attachment.type)) {
           const scaledAttachmentHeight =
             (mediaWidth / attachment.width!) * attachment.height!
@@ -207,7 +205,6 @@ export default function Attachment({
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
         scrollY={scrollY}
-        mediaContainerY={mediaContainerY}
       />
     </View>
   )

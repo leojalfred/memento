@@ -4,7 +4,12 @@ import type { AttachmentData } from '@/types'
 import { Audio, ResizeMode, Video } from 'expo-av'
 import { Image, ImageStyle } from 'expo-image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Platform, useWindowDimensions, ViewStyle } from 'react-native'
+import {
+  LayoutChangeEvent,
+  Platform,
+  useWindowDimensions,
+  ViewStyle,
+} from 'react-native'
 import Animated, {
   SharedValue,
   useAnimatedReaction,
@@ -31,7 +36,6 @@ interface AttachmentMediaProps {
     backgroundColor: string
   }
   scrollY: SharedValue<number>
-  mediaContainerY: number
 }
 
 export default function AttachmentMedia({
@@ -42,8 +46,16 @@ export default function AttachmentMedia({
   animatedColors,
   animatedBackgroundColor,
   scrollY,
-  mediaContainerY,
 }: AttachmentMediaProps) {
+  const [mediaContainerY, setMediaContainerY] = useState(0)
+  const measureView = useCallback(
+    (event: LayoutChangeEvent) =>
+      event.target.measure((x, y, width, height, pageX, pageY) => {
+        setMediaContainerY(scrollY.value + pageY + height / 2)
+      }),
+    [scrollY.value],
+  )
+
   const [sound, setSound] = useState<Audio.Sound>()
   const loadSound = useCallback(async () => {
     const status = await sound?.getStatusAsync()
@@ -84,7 +96,7 @@ export default function AttachmentMedia({
         opacity.value = withTiming(0, { duration: 300 })
       }
     },
-    [scrollY, mediaContainerY, visibleScreenHeight],
+    [scrollY, visibleScreenHeight, mediaContainerY],
   )
   const animatedOpacityStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -126,6 +138,7 @@ export default function AttachmentMedia({
             end={{ x: 1, y: 1 }}
             colors={attachment.colorPair}
             style={[styles?.mediaContainer, animatedOpacityStyle]}
+            onLayout={measureView}
           >
             {media}
           </AnimatedGradient>
@@ -136,6 +149,7 @@ export default function AttachmentMedia({
               animatedBackgroundColor,
               animatedOpacityStyle,
             ]}
+            onLayout={measureView}
           >
             {media}
           </Animated.View>
