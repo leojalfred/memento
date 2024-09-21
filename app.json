@@ -43,6 +43,9 @@
         }
       }
     },
+    "androidStatusBar": {
+      "backgroundColor": "#00000000"
+    },
     "plugins": [
       [
         "expo-font",
@@ -64,9 +67,10 @@
       [
         "expo-navigation-bar",
         {
-          "position": "relative",
+          "position": "absolute",
           "visibility": "hidden",
-          "behavior": "overlay-swipe"
+          "behavior": "overlay-swipe",
+          "backgroundColor": "#00000000"
         }
       ],
       "expo-router",
