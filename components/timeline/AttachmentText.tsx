@@ -1,10 +1,15 @@
 import AnimatedGradient from '@/components/AnimatedGradient'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Platform, Text, type LayoutChangeEvent } from 'react-native'
-import Animated from 'react-native-reanimated'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated'
 import { twMerge } from 'tailwind-merge'
 
 interface AttachmentTextProps {
+  isMediaVisible: boolean
   className?: string
   animatedColors: Partial<{
     colors: string[]
@@ -18,6 +23,7 @@ interface AttachmentTextProps {
 }
 
 export default function AttachmentText({
+  isMediaVisible,
   className,
   animatedColors,
   animatedBackgroundColor,
@@ -25,8 +31,17 @@ export default function AttachmentText({
   onLayout,
   children,
 }: AttachmentTextProps) {
+  const opacity = useSharedValue(1)
+  useEffect(() => {
+    opacity.value = withTiming(isMediaVisible ? 0.5 : 1, { duration: 200 })
+  }, [isMediaVisible, opacity])
+  const opacityAnimation = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }))
+
   return Platform.OS === 'ios' ? (
     <AnimatedGradient
+      style={opacityAnimation}
       animatedProps={animatedColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
@@ -38,7 +53,7 @@ export default function AttachmentText({
     </AnimatedGradient>
   ) : (
     <Animated.View
-      style={animatedBackgroundColor}
+      style={[animatedBackgroundColor, opacityAnimation]}
       className={twMerge('-mr-1 ml-1.5 rounded-sm px-1', className)}
       onLayout={onLayout}
     >

@@ -185,6 +185,7 @@ export default function Attachment({
   return (
     <View>
       <AttachmentText
+        isMediaVisible={isMediaVisible}
         className={classes}
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
