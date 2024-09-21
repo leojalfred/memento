@@ -1,21 +1,20 @@
-import AnimatedGradient from '@/components/AnimatedGradient'
-import IconButton from '@/components/IconButton'
+import AttachmentMedia, {
+  AttachmentMediaStyles,
+} from '@/components/timeline/AttachmentMedia'
 import AttachmentText from '@/components/timeline/AttachmentText'
-import Waveform from '@/components/Waveform'
 import type { AttachmentData } from '@/types'
-import { Audio, ResizeMode, Video } from 'expo-av'
-import { Image } from 'expo-image'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Audio } from 'expo-av'
+import { useCallback, useEffect, useState } from 'react'
 import {
-  Platform,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
   type LayoutChangeEvent,
 } from 'react-native'
-import Animated, {
+import {
   interpolateColor,
+  SharedValue,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
@@ -24,20 +23,20 @@ import Animated, {
 } from 'react-native-reanimated'
 import { twMerge } from 'tailwind-merge'
 
+const mediaWidth = 128
+const padding = 4
+const borderRadius = 8
+const audioPlayerHeight = 28.3
+const audioPlayerWidth = 172
+
 interface AttachmentProps {
   i: number
   value: string
   attachment: AttachmentData
   sortedAttachments: AttachmentData[]
   isEditing: boolean
+  scrollY: SharedValue<number>
 }
-
-const mediaWidth = 128
-let padding = 4
-let borderRadius = 8
-
-const audioPlayerHeight = 28.3
-const audioPlayerWidth = 172
 
 export default function Attachment({
   i,
@@ -45,6 +44,7 @@ export default function Attachment({
   attachment,
   sortedAttachments,
   isEditing,
+  scrollY,
 }: AttachmentProps) {
   const attachmentStartsInWord = value[attachment.start - 1] !== ' '
   const attachmentStartsAtStart = attachment.start === 0
@@ -85,7 +85,6 @@ export default function Attachment({
   }))
 
   const [sound, setSound] = useState<Audio.Sound>()
-  const [isSoundPlaying, setIsSoundPlaying] = useState(false)
   const loadSound = useCallback(async () => {
     const status = await sound?.getStatusAsync()
     if (status?.isLoaded) return
@@ -105,37 +104,9 @@ export default function Attachment({
     }
   }, [attachment.type, loadSound])
 
-  // pause sound on edit
-  useEffect(() => {
-    if (sound) {
-      if (isEditing) {
-        sound.pauseAsync()
-        setIsSoundPlaying(false)
-      }
-    }
-  }, [sound, isEditing])
-
-  // unload sound on unmount
-  useEffect(() => {
-    return sound
-      ? () => {
-          sound.unloadAsync()
-        }
-      : undefined
-  }, [sound])
-
-  const toggleSoundPlayback = useCallback(async () => {
-    if (isSoundPlaying) {
-      await sound?.pauseAsync()
-      setIsSoundPlaying(false)
-    } else {
-      await sound?.playAsync()
-      setIsSoundPlaying(true)
-    }
-  }, [isSoundPlaying, sound])
-
   const { width: screenWidth } = useWindowDimensions()
-  const [styles, setStyles] = useState<any>()
+  const [styles, setStyles] = useState<AttachmentMediaStyles>()
+  const [top, setTop] = useState(0)
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
       if (isEditing) return
@@ -148,6 +119,7 @@ export default function Attachment({
 
           const aspectRatio = attachment.width! / attachment.height!
           const top = (height - scaledAttachmentHeight) / 2 - padding
+          setTop(top)
 
           let left = (width - mediaWidth) / 2 - padding + 5.25
           if (pageX + left < 0) left = 0
@@ -173,6 +145,7 @@ export default function Attachment({
           )
         } else if (attachment.type === 'audio') {
           const top = (height - audioPlayerHeight) / 2 - padding
+          setTop(top)
 
           let left = (width - audioPlayerWidth) / 2 + 5.25
           if (pageX + left < 0) left = 0
@@ -207,53 +180,12 @@ export default function Attachment({
   )
 
   const text = value.slice(attachment.start, attachment.end)
-  const media = useMemo(() => {
-    if (!styles) return null
-
-    if (attachment.type === 'image') {
-      return (
-        <Image
-          source={{ uri: attachment.uri }}
-          alt={text}
-          style={styles.media}
-        />
-      )
-    } else if (attachment.type === 'video') {
-      return (
-        <Video
-          source={{ uri: attachment.uri }}
-          style={styles.media}
-          shouldPlay={!isEditing}
-          isLooping
-          resizeMode={ResizeMode.CONTAIN}
-        />
-      )
-    } else if (attachment.type === 'audio') {
-      return (
-        <View className="w-[140px] flex-row items-center justify-between">
-          <IconButton
-            className="pr-4"
-            icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
-            onPress={toggleSoundPlayback}
-            disabled={isEditing}
-          />
-          <Waveform count={24} isPlaying={isSoundPlaying} />
-        </View>
-      )
-    }
-  }, [
-    attachment.type,
-    attachment.uri,
-    isEditing,
-    isSoundPlaying,
-    styles,
-    text,
-    toggleSoundPlayback,
-  ])
+  const [isMediaVisible, setIsMediaVisible] = useState(false)
 
   return (
     <View>
       <AttachmentText
+        isMediaVisible={isMediaVisible}
         className={classes}
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
@@ -270,27 +202,18 @@ export default function Attachment({
           ),
         )}
       </AttachmentText>
-      {media && (
-        <>
-          {Platform.OS === 'ios' ? (
-            <AnimatedGradient
-              animatedProps={animatedColors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              colors={attachment.colorPair}
-              style={[styles.mediaContainer]}
-            >
-              {media}
-            </AnimatedGradient>
-          ) : (
-            <Animated.View
-              style={[animatedBackgroundColor, styles.mediaContainer]}
-            >
-              {media}
-            </Animated.View>
-          )}
-        </>
-      )}
+      <AttachmentMedia
+        attachment={attachment}
+        isEditing={isEditing}
+        styles={styles}
+        text={text}
+        animatedColors={animatedColors}
+        animatedBackgroundColor={animatedBackgroundColor}
+        scrollY={scrollY}
+        isMediaVisible={isMediaVisible}
+        setIsMediaVisible={setIsMediaVisible}
+        top={top}
+      />
     </View>
   )
 }

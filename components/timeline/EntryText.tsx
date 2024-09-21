@@ -1,18 +1,21 @@
 import type { AttachmentData } from '@/types'
 import { useMemo } from 'react'
 import { Text, View } from 'react-native'
+import { SharedValue } from 'react-native-reanimated'
 import Attachment from './Attachment'
 
 interface EntryTextProps {
   value: string
   sortedAttachments: AttachmentData[]
   isEditing: boolean
+  scrollY: SharedValue<number>
 }
 
 export default function EntryText({
   value,
   sortedAttachments,
   isEditing,
+  scrollY,
 }: EntryTextProps) {
   return useMemo(() => {
     return sortedAttachments.length > 0 ? (
@@ -40,6 +43,7 @@ export default function EntryText({
               attachment={attachment}
               sortedAttachments={sortedAttachments}
               isEditing={isEditing}
+              scrollY={scrollY}
             />,
           )
 
@@ -65,5 +69,5 @@ export default function EntryText({
         {value}
       </Text>
     )
-  }, [sortedAttachments, value, isEditing])
+  }, [sortedAttachments, value, isEditing, scrollY])
 }
