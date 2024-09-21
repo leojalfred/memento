@@ -177,6 +177,7 @@ export default function Attachment({
   )
 
   const text = value.slice(attachment.start, attachment.end)
+  const [isMediaVisible, setIsMediaVisible] = useState(false)
 
   return (
     <View>
@@ -205,6 +206,8 @@ export default function Attachment({
         animatedColors={animatedColors}
         animatedBackgroundColor={animatedBackgroundColor}
         scrollY={scrollY}
+        isMediaVisible={isMediaVisible}
+        setIsMediaVisible={setIsMediaVisible}
       />
     </View>
   )

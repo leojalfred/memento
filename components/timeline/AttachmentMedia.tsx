@@ -37,6 +37,8 @@ interface AttachmentMediaProps {
     backgroundColor: string
   }
   scrollY: SharedValue<number>
+  isMediaVisible: boolean
+  setIsMediaVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default function AttachmentMedia({
@@ -47,6 +49,8 @@ export default function AttachmentMedia({
   animatedColors,
   animatedBackgroundColor,
   scrollY,
+  isMediaVisible,
+  setIsMediaVisible,
 }: AttachmentMediaProps) {
   const [mediaContainerY, setMediaContainerY] = useState(0)
   const measureView = useCallback(
@@ -80,7 +84,6 @@ export default function AttachmentMedia({
   const { height } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const visibleScreenHeight = height - insets.top - insets.bottom
-  const [isVisible, setIsVisible] = useState(false)
 
   const opacity = useSharedValue(0)
   useAnimatedReaction(
@@ -94,10 +97,10 @@ export default function AttachmentMedia({
         mediaContainerY <= middleScreenEnd
       ) {
         opacity.value = withTiming(1, { duration: 200 })
-        runOnJS(setIsVisible)(true)
+        runOnJS(setIsMediaVisible)(true)
       } else {
         opacity.value = withTiming(0, { duration: 200 })
-        runOnJS(setIsVisible)(false)
+        runOnJS(setIsMediaVisible)(false)
       }
     },
     [scrollY, visibleScreenHeight, mediaContainerY],
@@ -122,7 +125,7 @@ export default function AttachmentMedia({
         <Video
           source={{ uri: attachment.uri }}
           style={styles.media}
-          shouldPlay={isVisible && !isEditing}
+          shouldPlay={isMediaVisible && !isEditing}
           isLooping
           resizeMode={ResizeMode.CONTAIN}
         />
@@ -133,7 +136,7 @@ export default function AttachmentMedia({
   }, [
     attachment.type,
     attachment.uri,
-    isVisible,
+    isMediaVisible,
     isEditing,
     styles,
     text,
