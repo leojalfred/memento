@@ -39,6 +39,7 @@ interface AttachmentMediaProps {
   scrollY: SharedValue<number>
   isMediaVisible: boolean
   setIsMediaVisible: React.Dispatch<React.SetStateAction<boolean>>
+  top: number
 }
 
 export default function AttachmentMedia({
@@ -51,6 +52,7 @@ export default function AttachmentMedia({
   scrollY,
   isMediaVisible,
   setIsMediaVisible,
+  top,
 }: AttachmentMediaProps) {
   const [mediaContainerY, setMediaContainerY] = useState(0)
   const measureView = useCallback(
@@ -74,7 +76,6 @@ export default function AttachmentMedia({
     setSound(loadedSound)
   }, [sound, attachment.uri])
 
-  // load sound
   useEffect(() => {
     if (attachment.type === 'audio') {
       loadSound()
@@ -84,8 +85,10 @@ export default function AttachmentMedia({
   const { height } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   const visibleScreenHeight = height - insets.top - insets.bottom
+  const spaceBetweenSweetSpot = visibleScreenHeight * 0.2
 
   const opacity = useSharedValue(0)
+  const sharedTop = useSharedValue(top)
   useAnimatedReaction(
     () => scrollY.value,
     (scrollPosition) => {
@@ -96,17 +99,23 @@ export default function AttachmentMedia({
         mediaContainerY >= middleScreenStart &&
         mediaContainerY <= middleScreenEnd
       ) {
+        const pt =
+          (mediaContainerY - middleScreenStart) / spaceBetweenSweetSpot - 0.5
+
         opacity.value = withTiming(1, { duration: 200 })
-        runOnJS(setIsMediaVisible)(true)
+        sharedTop.value = top + 32 * pt
+
+        if (!isMediaVisible) runOnJS(setIsMediaVisible)(true)
       } else {
         opacity.value = withTiming(0, { duration: 200 })
-        runOnJS(setIsMediaVisible)(false)
+        if (isMediaVisible) runOnJS(setIsMediaVisible)(false)
       }
     },
-    [scrollY, visibleScreenHeight, mediaContainerY],
+    [scrollY, top, visibleScreenHeight, mediaContainerY],
   )
-  const animatedOpacityStyle = useAnimatedStyle(() => ({
+  const mediaContainerAnimation = useAnimatedStyle(() => ({
     opacity: opacity.value,
+    top: sharedTop.value,
   }))
 
   const media = useMemo(() => {
@@ -152,7 +161,7 @@ export default function AttachmentMedia({
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             colors={attachment.colorPair}
-            style={[styles?.mediaContainer, animatedOpacityStyle]}
+            style={[styles?.mediaContainer, mediaContainerAnimation]}
             onLayout={measureView}
           >
             {media}
@@ -162,7 +171,7 @@ export default function AttachmentMedia({
             style={[
               styles?.mediaContainer,
               animatedBackgroundColor,
-              animatedOpacityStyle,
+              mediaContainerAnimation,
             ]}
             onLayout={measureView}
           >

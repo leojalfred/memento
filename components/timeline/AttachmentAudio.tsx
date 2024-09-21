@@ -14,8 +14,6 @@ export default function AttachmentAudio({
   isEditing,
 }: AttachmentAudioProps) {
   const [isSoundPlaying, setIsSoundPlaying] = useState(false)
-
-  // pause sound on edit
   useEffect(() => {
     if (sound) {
       if (isEditing) {
@@ -25,7 +23,6 @@ export default function AttachmentAudio({
     }
   }, [sound, isEditing])
 
-  // unload sound on unmount
   useEffect(() => {
     return sound
       ? () => {
