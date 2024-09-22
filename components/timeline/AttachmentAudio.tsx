@@ -1,5 +1,6 @@
 import IconButton from '@/components/IconButton'
 import Waveform from '@/components/Waveform'
+import { colors } from '@/constants/colors'
 import { Audio } from 'expo-av'
 import { useCallback, useEffect, useState } from 'react'
 import { View } from 'react-native'
@@ -46,10 +47,11 @@ export default function AttachmentAudio({
       <IconButton
         className="pr-4"
         icon={isSoundPlaying ? 'stop-circle' : 'play-circle'}
+        color={colors.white}
         onPress={toggleSoundPlayback}
         disabled={isEditing}
       />
-      <Waveform count={24} isPlaying={isSoundPlaying} />
+      <Waveform className="bg-white" count={24} isPlaying={isSoundPlaying} />
     </View>
   )
 }
