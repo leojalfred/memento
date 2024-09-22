@@ -109,7 +109,7 @@ export default function AttachmentMedia({
         if (isMediaVisible) runOnJS(setIsMediaVisible)(false)
       }
     },
-    [scrollY, mediaContainerY],
+    [scrollY, mediaContainerY, isMediaVisible],
   )
   const mediaContainerAnimation = useAnimatedStyle(() => ({
     opacity: opacity.value,
