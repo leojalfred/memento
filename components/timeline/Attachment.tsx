@@ -106,7 +106,6 @@ export default function Attachment({
 
   const { width: screenWidth } = useWindowDimensions()
   const [styles, setStyles] = useState<AttachmentMediaStyles>()
-  const [top, setTop] = useState(0)
   const onLayout = useCallback(
     (event: LayoutChangeEvent) => {
       if (isEditing) return
@@ -119,7 +118,6 @@ export default function Attachment({
 
           const aspectRatio = attachment.width! / attachment.height!
           const top = (height - scaledAttachmentHeight) / 2 - padding
-          setTop(top)
 
           let left = (width - mediaWidth) / 2 - padding + 5.25
           if (pageX + left < 0) left = 0
@@ -145,7 +143,6 @@ export default function Attachment({
           )
         } else if (attachment.type === 'audio') {
           const top = (height - audioPlayerHeight) / 2 - padding
-          setTop(top)
 
           let left = (width - audioPlayerWidth) / 2 + 5.25
           if (pageX + left < 0) left = 0
@@ -212,7 +209,6 @@ export default function Attachment({
         scrollY={scrollY}
         isMediaVisible={isMediaVisible}
         setIsMediaVisible={setIsMediaVisible}
-        top={top}
       />
     </View>
   )

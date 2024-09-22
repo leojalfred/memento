@@ -39,7 +39,6 @@ interface AttachmentMediaProps {
   scrollY: SharedValue<number>
   isMediaVisible: boolean
   setIsMediaVisible: React.Dispatch<React.SetStateAction<boolean>>
-  top: number
 }
 
 export default function AttachmentMedia({
@@ -52,7 +51,6 @@ export default function AttachmentMedia({
   scrollY,
   isMediaVisible,
   setIsMediaVisible,
-  top,
 }: AttachmentMediaProps) {
   const [mediaContainerY, setMediaContainerY] = useState(0)
   const measureView = useCallback(
@@ -88,7 +86,7 @@ export default function AttachmentMedia({
   const spaceBetweenSweetSpot = visibleScreenHeight * 0.2
 
   const opacity = useSharedValue(0)
-  const sharedTop = useSharedValue(top)
+  const translateY = useSharedValue(0)
   useAnimatedReaction(
     () => scrollY.value,
     (scrollPosition) => {
@@ -103,7 +101,7 @@ export default function AttachmentMedia({
           (mediaContainerY - middleScreenStart) / spaceBetweenSweetSpot - 0.5
 
         opacity.value = withTiming(1, { duration: 200 })
-        sharedTop.value = top + 24 * pt
+        translateY.value = 24 * pt
 
         if (!isMediaVisible) runOnJS(setIsMediaVisible)(true)
       } else {
@@ -111,11 +109,11 @@ export default function AttachmentMedia({
         if (isMediaVisible) runOnJS(setIsMediaVisible)(false)
       }
     },
-    [scrollY, top, visibleScreenHeight, mediaContainerY],
+    [scrollY, mediaContainerY],
   )
   const mediaContainerAnimation = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    top: sharedTop.value,
+    transform: [{ translateY: translateY.value }],
   }))
 
   const media = useMemo(() => {
