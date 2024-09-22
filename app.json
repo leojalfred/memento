@@ -43,9 +43,6 @@
         }
       }
     },
-    "androidStatusBar": {
-      "backgroundColor": "#00000000"
-    },
     "plugins": [
       [
         "expo-font",
