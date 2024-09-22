@@ -9,6 +9,7 @@ import {
 interface IconButtonProps {
   className?: string
   icon: keyof typeof Feather.glyphMap
+  color?: string
   onPress?: ((event: GestureResponderEvent) => void) | undefined
   disabled?: boolean
 }
@@ -16,6 +17,7 @@ interface IconButtonProps {
 export default function IconButton({
   className,
   icon,
+  color,
   onPress,
   disabled,
 }: IconButtonProps) {
@@ -30,7 +32,9 @@ export default function IconButton({
       <Feather
         name={icon}
         size={20}
-        color={scheme === 'light' ? colors.gray[700] : colors.gray[300]}
+        color={
+          color ?? (scheme === 'light' ? colors.gray[700] : colors.gray[300])
+        }
       />
     </TouchableOpacity>
   )
